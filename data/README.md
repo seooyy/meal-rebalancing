@@ -13,7 +13,7 @@
 
 파일이 맞는지 확인:
 
-```bash
+```powershell
 python -c "import hashlib;print(hashlib.sha256(open('data/ABP_CONTEST_DATA.csv','rb').read()).hexdigest())"
 # 031c3a5ca96d4873a7b7f17869458e4f2ca3452c45cf4c45ff46baca44058c26
 ```
@@ -23,12 +23,12 @@ python -c "import hashlib;print(hashlib.sha256(open('data/ABP_CONTEST_DATA.csv',
 | 파일 | 출처 |
 | --- | --- |
 | `202601_202606_연령별인구현황_월간.xlsx` | 행정안전부 주민등록인구통계 |
-| `품목별_소비자물가지수_...xlsx` | KOSIS. **수록 월이 2026.03~08이라 카드 데이터와 어긋난다. 재수집 필요** |
-| `일별 도,소매 가격정보 API명세.../` | 공공데이터포털. 명세·코드표만 있고 실제 가격 데이터는 없다 |
+| `품목별_소비자물가지수_..._133542.xlsx` | KOSIS. 2026.01~06 전국, 외식 세부 품목 포함. 재수집 완료 |
+| `일별 도,소매 가격정보 API명세.../` | 공공데이터포털. 명세·코드표만 있고 실제 가격 데이터는 없다. 서비스키는 발급 완료 — `.env.example` 참조 |
 
 ## 읽기 전 필수
 
-```bash
+```powershell
 pip install openpyxl   # 없으면 .xlsx를 못 읽는다
 ```
 
