@@ -87,21 +87,49 @@ plan/       계획 문서
 **아래를 그대로 복사해 쓴다.** 이름이나 인자를 바꾸면 2일차 통합이 깨진다.
 
 ```python
-# src/load.py — A 담당
-def load_card(path: str = "data/ABP_CONTEST_DATA.csv") -> pd.DataFrame:
+# src/load.py — A 담당 (구현 완료)
+def load_card(path="data/ABP_CONTEST_DATA.csv", *, validate=True) -> pd.DataFrame:
     """카드 원본을 읽어 타입을 고정하고 파생 열을 붙여 반환.
 
     파생 열:
-      group  : '일반개인' | '외국인' | '법인'
-      period : 'A' | 'B'
+      group       : '일반개인' | '외국인' | '법인'
+      period      : 'A' (202601~03) | 'B' (202604~06)
+      days        : 90 또는 91
+      region_key  : 'SIDO_NM CCG_NM' (예: '서울특별시 중구')
     """
 
-def aggregate(df, region=None, buz=None, group_by=None) -> pd.DataFrame:
+def aggregate(df, region=None, buz=None, group_by=None, sido=None) -> pd.DataFrame:
     """지역·업종·집단별 집계.
 
-    buz를 생략하면 ValueError를 발생시킨다.
-    일반한식과 서양음식은 건당금액이 3배 이상 차이 나므로 합산하면 안 된다.
+    buz를 생략하면 ValueError.
+    region이 여러 시도에 걸친 이름이면 sido 없이는 ValueError.
+
+    반환 열:
+      amt_A/B, cnt_A/B, daily_amt_A/B, daily_cnt_A/B, unit_A/B,
+      daily_amt_chg_pct, daily_cnt_chg_pct, unit_chg_pct, share_B_pct
     """
+
+def ambiguous_ccg(df) -> dict[str, list[str]]:
+    """여러 시도에 같은 이름이 있는 시군구 -> 시도 목록."""
+
+def national_baseline(df, buz_list=None) -> pd.DataFrame:
+    """업종별 전국 기준선."""
+
+def self_check(df=None) -> bool:
+    """7절 기준값과 대조. 터미널: python -m src.load"""
+```
+
+사용 예:
+
+```python
+from src.load import load_card, aggregate, BUZ_KOREAN, BUZ_WESTERN
+
+d = load_card()
+aggregate(d, region="미추홀구", buz=BUZ_KOREAN)                    # 지역 1곳
+aggregate(d, region="중구", sido="서울특별시", buz=BUZ_KOREAN)      # 모호한 이름
+aggregate(d, buz=BUZ_WESTERN)                                     # 전국
+aggregate(d, region="강남구", buz=BUZ_WESTERN, group_by="group")   # 집단별
+aggregate(d, buz=BUZ_KOREAN, group_by="region_key")               # 255개 지역 전체
 ```
 
 ```python
@@ -175,6 +203,34 @@ dtype = {"GENDER_CD": str, "AGE_CD": str, "TP_BUZ_NO": str}
 
 **1인당 환산 함수를 코드베이스에 만들지 않는다.**
 
+### 6-6. 시군구명만으로 지역을 특정하지 않는다 ⚠️
+
+**`CCG_NM`은 유일하지 않다.** 시군구명은 233개인데 실제 지역은 255개다.
+
+| 시군구명 | 존재하는 시도 수 |
+| --- | --- |
+| 중구, 동구 | 각 **6곳** |
+| 서구 | 5곳 |
+| 남구, 북구 | 각 4곳 |
+| 강서구, 고성군 | 각 2곳 |
+
+`region="중구"`로 필터하면 서울·부산·대구·인천·대전·울산 6곳이 **에러 없이 합산된다.** 금액 5,207억 원이 한 덩어리로 나오는데 그럴듯해 보여서 발견이 늦다.
+
+**지역 키는 `region_key`(= `SIDO_NM + " " + CCG_NM`)를 쓴다.** `load_card()`가 만들어 준다.
+
+```python
+# 틀림 — 6개 중구가 합쳐진다
+df.groupby("CCG_NM")
+
+# 맞음
+df.groupby("region_key")
+aggregate(df, region="중구", sido="서울특별시", buz=BUZ_KOREAN)
+```
+
+`aggregate()`는 모호한 이름에 `sido`가 없으면 `ValueError`를 던진다. 하지만 `groupby`를 직접 쓰면 아무도 막아주지 않는다.
+
+**C 주의**: 유사 지역 매칭에서 인구 데이터와 붙일 때도 `region_key` 기준으로 맞춘다. `CCG_NM`으로 join하면 22개 지역이 잘못 합쳐진다.
+
 ### 6-5. 지역 수치에는 전국 기준선을 병기
 
 | 업종 | 일평균 금액 | 일평균 건수 | 건당 금액 |
@@ -190,6 +246,14 @@ dtype = {"GENDER_CD": str, "AGE_CD": str, "TP_BUZ_NO": str}
 
 각자 작업 결과가 아래와 맞는지 확인한다. 어긋나면 진행하지 말고 원인을 찾는다.
 
+### 전체 자동 검증
+
+```powershell
+python -m src.load
+```
+
+아래 항목을 한 번에 대조한다. **"전부 통과"가 나와야 다음 단계로 간다.**
+
 ### A — 4셀 + 전국 (일평균금액 / 일평균건수 / 건당금액)
 
 | 대상 | 기대값 |
@@ -202,6 +266,12 @@ dtype = {"GENDER_CD": str, "AGE_CD": str, "TP_BUZ_NO": str}
 | 전국 서양음식 | +7.88% / +15.25% / −6.39% |
 
 법인 금액 비중 전국 **6.13%**.
+
+관측 범위: (시도,시군구) 쌍 **255**, 시군구명 **233**, 월별 지역수 모두 255.
+
+안전장치: `aggregate(df)` → ValueError, `aggregate(df, region="중구", buz=...)` → ValueError.
+
+분해 잔차 **1e-10 미만** (실측 2.67e-16).
 
 ### B — 시뮬레이터
 
