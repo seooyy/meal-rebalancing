@@ -381,9 +381,9 @@ def national_baseline(df: pd.DataFrame, buz_list: list[str] | None = None) -> pd
 # (지역, 업종, 라벨, 기대 금액변화, 기대 건수변화, 기대 건당변화)
 CASE_CELLS = [
     ("미추홀구", BUZ_KOREAN, "미추홀구 일반한식", -2.05, 2.82, -4.74),
-    ("강남구", BUZ_WESTERN, "강남구 서양음식", -4.31, -0.19, -4.13),
+    ("이천시", BUZ_WESTERN, "이천시 서양음식", -1.80, 10.47, -11.11),
     ("미추홀구", BUZ_WESTERN, "미추홀구 서양음식", 4.92, 13.90, -7.89),
-    ("강남구", BUZ_KOREAN, "강남구 일반한식", -0.34, 0.74, -1.07),
+    ("이천시", BUZ_KOREAN, "이천시 일반한식", 3.71, 4.95, -1.18),
 ]
 
 NATIONAL_EXPECTED = [
