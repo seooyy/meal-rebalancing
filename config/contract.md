@@ -1,0 +1,299 @@
+# 인터페이스 계약
+
+A·B·C 세 명이 병렬로 작업하기 위한 약속이다. **1일차 시작 전 30분에 셋이 함께 확정하고, 2일차 통합 전까지 바꾸지 않는다.**
+
+바꿔야 할 일이 생기면 혼자 고치지 말고 나머지 두 명에게 먼저 알린다.
+
+---
+
+## 1. 환경
+
+| 항목 | 버전 |
+| --- | --- |
+| OS | Windows 11 |
+| 셸 | **PowerShell** |
+| Python | 3.13.2 |
+| pandas | 2.2.3 |
+| numpy | 2.2.5 |
+| openpyxl | 3.1.5 |
+
+셋 다 위 버전으로 맞춘다. 확인:
+
+```powershell
+python -c "import sys,pandas,numpy,openpyxl;print(sys.version.split()[0],pandas.__version__,numpy.__version__,openpyxl.__version__)"
+```
+
+**명령어는 PowerShell 기준으로 적는다.** bash 문법(`mkdir -p`, `cp`, `rm -rf`)은 동작하지 않는다.
+
+| bash | PowerShell |
+| --- | --- |
+| `mkdir -p a b` | `New-Item -ItemType Directory -Force -Path a, b` |
+| `cp x y` | `Copy-Item x y` |
+| `rm -rf x` | `Remove-Item -Recurse -Force x` |
+
+### 기존 EDA와의 차이 (주의)
+
+`eda_new_results/.../run_manifest.json`의 실행 환경은 Python 3.12.7 / pandas 2.2.2 / **numpy 1.26.4**였다. 지금은 **numpy 2.x**라 메이저 버전이 다르다.
+
+기존 EDA 산출물을 재현할 때 소수점 끝자리가 다를 수 있다. **재현이 목적이 아니라 참고가 목적**이므로 그대로 진행하되, 값이 크게 어긋나면 버전 차이를 먼저 의심한다.
+
+---
+
+## 2. 폴더 구조
+
+```
+src/        코드          A: load.py, diagnose.py  B: simulator.py  C: similar_region.py
+config/     설정          contract.md(이 파일), rules.yaml, options.yaml, demo_store_*.yaml
+tests/      테스트        B가 주로 사용
+out/        산출물 CSV    A가 주로 생성, C가 소비
+data/       원본 데이터   수정 금지
+plan/       계획 문서
+```
+
+---
+
+## 3. 파일 소유권
+
+**남의 파일은 고치지 않는다.** 고쳐야 하면 담당자에게 요청한다.
+
+| 파일 | 만드는 사람 | 읽는 사람 |
+| --- | --- | --- |
+| `src/load.py` | **A** | B, C |
+| `src/diagnose.py` | **A** | C |
+| `config/rules.yaml` | **A** | C |
+| `out/codebook_v1.csv` | **A** | — |
+| `out/audit_v1.csv` | **A** | — |
+| `out/case_cells_v1.csv` | **A** | C |
+| `out/national_baseline_v1.csv` | **A** | C |
+| `out/region_group_metrics.csv` | **A** | C |
+| `src/simulator.py` | **B** | C |
+| `config/options.yaml` | **B** | C |
+| `config/demo_store_korean.yaml` | **B** | C |
+| `config/demo_store_western.yaml` | **B** | C |
+| `tests/test_simulator.py` | **B** | — |
+| `src/similar_region.py` | **C** | — |
+| `config/region_alias.csv` | **C** | — |
+| `out/population_2026m1.csv` | **C** | — |
+| `out/similar_regions.csv` | **C** | — |
+| 화면 껍데기 (레이아웃·공통 CSS) | **C** | B |
+| 화면 2 컴포넌트 | **B** | — |
+
+**화면 껍데기는 C가 소유한다.** C가 1일차 종료 전에 빈 껍데기를 올려두면, 2일차에 B는 자기 화면 파일만 채운다. 둘이 동시에 레이아웃을 고치면 충돌한다.
+
+---
+
+## 4. 함수 시그니처
+
+**아래를 그대로 복사해 쓴다.** 이름이나 인자를 바꾸면 2일차 통합이 깨진다.
+
+```python
+# src/load.py — A 담당
+def load_card(path: str = "data/ABP_CONTEST_DATA.csv") -> pd.DataFrame:
+    """카드 원본을 읽어 타입을 고정하고 파생 열을 붙여 반환.
+
+    파생 열:
+      group  : '일반개인' | '외국인' | '법인'
+      period : 'A' | 'B'
+    """
+
+def aggregate(df, region=None, buz=None, group_by=None) -> pd.DataFrame:
+    """지역·업종·집단별 집계.
+
+    buz를 생략하면 ValueError를 발생시킨다.
+    일반한식과 서양음식은 건당금액이 3배 이상 차이 나므로 합산하면 안 된다.
+    """
+```
+
+```python
+# src/simulator.py — B 담당
+def required_volume(base_cm: float, unit_cm: float, setup_cost: float = 0) -> int | None:
+    """필요 판매량 = 올림[(base_cm + setup_cost) / unit_cm]
+
+    unit_cm <= 0 이면 None을 반환한다 (판매량 증가만으로 달성 불가).
+    """
+```
+
+```python
+# src/similar_region.py — C 담당
+def find_similar(region: str, buz: str, k: int = 5) -> pd.DataFrame:
+    """인구·초기 소비 기준 유사 지역 k곳과 거리를 반환. 업종별로 따로 계산한다."""
+```
+
+---
+
+## 5. 공통 상수
+
+`src/load.py` 상단에 정의하고, B·C는 `from src.load import ...` 로 가져다 쓴다.
+
+```python
+DAYS_A, DAYS_B = 90, 91
+PERIOD_A = ["202601", "202602", "202603"]
+PERIOD_B = ["202604", "202605", "202606"]
+
+GROUP_MAP = {"1": "일반개인", "2": "일반개인", "3": "외국인", "x": "법인"}
+AGE_FOR_COMPARISON = ["2", "3", "4", "5", "6"]
+
+BUZ_KOREAN  = "8001"   # 일반한식
+BUZ_WESTERN = "8006"   # 서양음식
+
+NOISE_BAND = 0.01      # ±1%, 이 안쪽은 "변화 미미"
+SHARE_GATE = 0.05      # B기간 금액 비중 5% 미만이면 실행 후보에서 제외
+```
+
+**일수로 나눈다. 월 수가 아니다.** A는 90일, B는 91일이다.
+
+---
+
+## 6. 데이터 규칙 (어기면 조용히 틀린다)
+
+### 6-1. 법인은 소문자 `x`
+
+```python
+dtype = {"GENDER_CD": str, "AGE_CD": str, "TP_BUZ_NO": str}
+```
+
+대문자 `X`로 필터하면 법인 금액이 **전부 사라진다.** 그런데 합계는 그럴듯해 보여서 발견이 늦다.
+
+**검증**: 전국 법인 금액 비중이 **6.13%** 로 나와야 한다. 0%가 나오면 대소문자 실수다.
+
+### 6-2. 업종은 필수 그룹 키
+
+일반한식 36,869원 대 서양음식 11,023원. 합산하면 업종 구성비 변화가 객단가 변화로 둔갑한다.
+
+`aggregate()`에서 `buz=None`이면 `ValueError`를 던진다.
+
+### 6-3. AGE_CD 1과 x는 연령 비교에서 제외
+
+- `1` = 범위 미확인 (금액 0.96%)
+- `x` = 법인 (연령 없음)
+
+전체 합계에는 포함하되 연령별 비교에서는 빼고, **제외 비중을 화면에 표시한다.**
+
+### 6-4. 1인당 소비 환산 금지
+
+`CCG_NM`이 가맹점 소재지인지 고객 거주지인지 확인되지 않았다. 강남구 서양음식 일평균 48,792건이 강남구 주민 수로 설명되지 않는 것이 그 증거다.
+
+**1인당 환산 함수를 코드베이스에 만들지 않는다.**
+
+### 6-5. 지역 수치에는 전국 기준선을 병기
+
+| 업종 | 일평균 금액 | 일평균 건수 | 건당 금액 |
+| --- | --- | --- | --- |
+| 일반한식 | +8.13% | +10.09% | −1.78% |
+| 서양음식 | +7.88% | +15.25% | −6.39% |
+
+두 업종 모두 전국적으로 건당금액이 떨어졌다. 기준선 없이 보면 전국 흐름을 지역 문제로 오진한다.
+
+---
+
+## 7. 검증 기준값
+
+각자 작업 결과가 아래와 맞는지 확인한다. 어긋나면 진행하지 말고 원인을 찾는다.
+
+### A — 4셀 + 전국 (일평균금액 / 일평균건수 / 건당금액)
+
+| 대상 | 기대값 |
+| --- | --- |
+| 미추홀구 일반한식 | −2.05% / +2.82% / −4.74% |
+| 강남구 서양음식 | −4.31% / −0.19% / −4.13% |
+| 미추홀구 서양음식 | +4.92% / +13.90% / −7.89% |
+| 강남구 일반한식 | −0.34% / +0.74% / −1.07% |
+| 전국 일반한식 | +8.13% / +10.09% / −1.78% |
+| 전국 서양음식 | +7.88% / +15.25% / −6.39% |
+
+법인 금액 비중 전국 **6.13%**.
+
+### B — 시뮬레이터
+
+```python
+required_volume(600000, 6000) == 100
+required_volume(600000, 5000) == 120
+required_volume(600000, 5700) == 106     # 105.26 → 올림
+required_volume(600000, 5999) == 101     # 올림 경계
+required_volume(600000, 0)    is None
+required_volume(600000, 6000, setup_cost=60000) == 110
+```
+
+### C — 지역 매칭
+
+- 인구 데이터와 카드 데이터의 시군구 **미매칭 0건** (255개 전부)
+- 강남구에서 거리 기준 "유사 지역 없음" 판정이 작동
+
+---
+
+## 8. 브랜치 규칙
+
+| 담당 | 브랜치 |
+| --- | --- |
+| A | `feat/data-foundation` |
+| B | `feat/stage4-simulator` |
+| C | `feat/stage3-similar-region` |
+
+```powershell
+git checkout main
+git pull origin main
+git checkout -b <브랜치명>
+git push -u origin <브랜치명>     # 첫 push에만 -u
+```
+
+### A의 예외 — 로더는 즉시 main에 넣는다
+
+**C의 1일차 오후가 `src/load.py`에 걸려 있다.** A 브랜치 안에만 있으면 C가 못 쓴다.
+
+로더를 완성하면 바로 PR을 올리고 **리뷰를 기다리지 말고 merge**한다. 나머지 집계 작업은 브랜치에서 계속하고 1일차 끝에 두 번째 PR로 합친다.
+
+C는 merge 후 이렇게 받는다.
+
+```powershell
+git checkout main
+git pull origin main
+```
+
+---
+
+## 9. 커밋 규칙
+
+- 작은 단위로 끊는다. 한 커밋에 여러 관심사를 섞지 않는다.
+- `.env`, 원본 CSV, 참가신청서류는 **절대 커밋하지 않는다.** `.gitignore`에 등록돼 있지만 커밋 전 `git status`로 확인한다.
+- 인증키를 코드나 노트북에 직접 쓰지 않는다. `.env`만 사용한다.
+
+접두어:
+
+| 접두어 | 용도 |
+| --- | --- |
+| `feat:` | 기능 추가 |
+| `fix:` | 버그 수정 |
+| `docs:` | 문서 |
+| `chore:` | 설정·데이터·잡일 |
+| `test:` | 테스트 |
+
+---
+
+## 10. 금지 문구
+
+화면과 산출물에 아래 표현을 쓰지 않는다.
+
+- "20대 소비 증가 = 가성비 선호", "중장년 증가 = 모임형 메뉴 선호" — 연령·집단 차이를 선호나 동기로 바로 해석하지 않는다
+- "주민 1인당 외식비" — 6-4 참조
+- 필요 판매량을 **예측**으로 표현하는 문구 — "달성 조건"이지 "이만큼 팔릴 것"이 아니다
+- 공헌이익을 **순이익**처럼 쓰는 표현
+
+필수 문구:
+
+- "BC카드 관측 집계 기준"
+- "5월 결제금액이 전국 평균 대비 약 +11%로 높음 — 계절 요인 포함"
+- "필요 판매량은 달성 조건이며 판매 예측이 아니다"
+- 예시 매장에 "가상 사례" 배지
+
+---
+
+## 11. 미해결 정의 (주최 측 확인 대상)
+
+답변이 오면 이 문서와 `plan/00`을 함께 갱신한다.
+
+1. `CCG_NM`이 가맹점 소재지인가 고객 거주지인가
+2. `GENDER_CD=3`(외국인)의 모집단 정의
+3. `AGE_CD=1`의 연령 범위
+4. 파생 집계의 공유·제출 허용 범위
+
+확인 전까지는 모든 산출물에 "BC카드 관측 집계 기준"을 표기하고 1인당 환산을 하지 않는다.
