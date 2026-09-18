@@ -221,3 +221,33 @@ def pp(v: float) -> str:
 def won_exact(v: float) -> str:
     """원 단위 그대로. 건당 결제금액처럼 만/억으로 뭉개면 안 되는 값에 쓴다."""
     return "—" if pd.isna(v) else f"{v:,.0f}원"
+
+
+# ---- 관측량 게이트 ---------------------------------------------------------
+#
+# 기준: min(A기간 건수, B기간 건수) < MIN_CASES 이면 변화율을 표시하지 않는다.
+# 근거는 A의 notebooks/A01_관측량_기준선.ipynb.
+#
+# **잠정안이다.** 노트북에 "팀 동기화 때 확정"으로 적혀 있다. 확정값이 달라지면
+# 아래 상수 하나만 고치면 화면 전체에 반영된다.
+#
+# 이 게이트가 무엇을 잡고 무엇을 못 잡는지:
+#   - 지역×업종 (255×2)      : 현재 걸리는 곳 0곳 (최소가 울릉군 서양음식 3,676건)
+#   - 지역×업종×집단 (1,530) : 107칸(7.0%)이 걸린다
+#   - 울릉군 서양음식의 +237%는 관측량이 아니라 계절성(3,676건→11,915건)이라
+#     이 게이트로 걸러지지 않는다. 별도 문제다.
+
+MIN_CASES = 1000
+NOTE_THIN = "관측량 부족"
+
+
+def obs_count(cnt_a: float, cnt_b: float) -> float:
+    """두 기간 중 적은 쪽 건수. 변화율의 신뢰도는 이쪽이 결정한다."""
+    if pd.isna(cnt_a) or pd.isna(cnt_b):
+        return 0.0
+    return min(float(cnt_a), float(cnt_b))
+
+
+def observed(cnt_a: float, cnt_b: float) -> bool:
+    """A·B 두 기간 모두 기준 건수 이상 관측됐는가."""
+    return obs_count(cnt_a, cnt_b) >= MIN_CASES

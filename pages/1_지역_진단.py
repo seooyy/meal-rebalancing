@@ -9,7 +9,11 @@ from ui.common import (
     cases,
     footer,
     load_csv,
+    MIN_CASES,
     note,
+    NOTE_THIN,
+    obs_count,
+    observed,
     page_setup,
     pct,
     pp,
@@ -32,6 +36,11 @@ nat = baseline(buz)
 
 if not len(m):
     st.info("이 지역·업종 조합은 관측 자료가 없어 지표를 낼 수 없다.")
+elif not observed(m.iloc[0].cnt_A, m.iloc[0].cnt_B):
+    # 관측량 게이트. 적은 건수에서는 변화율이 크게 흔들려 그대로 읽으면 오진한다.
+    r = m.iloc[0]
+    note(f"<b>{NOTE_THIN}</b> — 1~3월 {cases(r.cnt_A)} · 4~6월 {cases(r.cnt_B)}로 "
+         f"두 기간 중 적은 쪽이 기준 {MIN_CASES:,}건에 못 미친다. 변화율을 표시하지 않는다.")
 else:
     r = m.iloc[0]
 
@@ -45,6 +54,9 @@ else:
         with col:
             st.metric(label, fmt(b), pct(chg))
             st.caption(f"1~3월 {fmt(a)} → 4~6월 {fmt(b)}")
+
+    st.caption(f"관측 {cases(obs_count(r.cnt_A, r.cnt_B))} (두 기간 중 적은 쪽) · "
+               f"기준 {MIN_CASES:,}건 이상")
 
     # 계약 6-5절. 이 표를 빼면 전국적 흐름을 지역 고유 문제로 오진한다.
     st.markdown("**전국 기준선 병기**")
@@ -75,13 +87,19 @@ else:
     if not len(g):
         st.caption("집단별 관측이 없다.")
     else:
-        recs = []
+        recs, thin = [], []
         for t in g.sort_values("share_B_pct", ascending=False).itertuples():
+            # 집단 칸은 1,530칸 중 107칸(7.0%)이 기준에 못 미친다.
+            if not observed(t.cnt_A, t.cnt_B):
+                thin.append(f"{t.group} {cases(obs_count(t.cnt_A, t.cnt_B))}"
+                            f"(비중 {t.share_B_pct:.2f}%)")
+                continue
             gn = baseline(buz, t.group)
             excess = (lambda v, c: pp(v - getattr(gn, c)) if gn is not None else "—")
             recs.append({
                 "집단": t.group,
                 "4~6월 금액 비중": f"{t.share_B_pct:.2f}%",
+                "관측 건수": cases(obs_count(t.cnt_A, t.cnt_B)),
                 "일평균 금액": pct(t.daily_amt_chg_pct),
                 "금액 초과분": excess(t.daily_amt_chg_pct, "daily_amt_chg_pct"),
                 "일평균 건수": pct(t.daily_cnt_chg_pct),
@@ -89,7 +107,16 @@ else:
                 "건당 금액": pct(t.unit_chg_pct),
                 "건당 초과분": excess(t.unit_chg_pct, "unit_chg_pct"),
             })
-        st.dataframe(pd.DataFrame(recs), hide_index=True, width="stretch")
+
+        if recs:
+            st.dataframe(pd.DataFrame(recs), hide_index=True, width="stretch")
+        else:
+            st.caption("모든 집단이 관측량 기준에 못 미쳐 표시할 수치가 없다.")
+
+        if thin:
+            note(f"<b>{NOTE_THIN}</b> — {' · '.join(thin)}. "
+                 f"두 기간 중 적은 쪽이 {MIN_CASES:,}건 미만이라 변화율을 표에서 뺐다. "
+                 "위 전체 수치에는 포함돼 있다.")
 
         ex = age_excluded_share(region, buz)
         note(
