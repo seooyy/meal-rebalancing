@@ -3,7 +3,22 @@
 import pandas as pd
 import streamlit as st
 
-from ui.common import footer, load_csv, page_setup, selector, todo
+from ui.common import (
+    age_excluded_share,
+    baseline,
+    cases,
+    footer,
+    load_csv,
+    note,
+    page_setup,
+    pct,
+    pp,
+    region_metrics,
+    selector,
+    todo,
+    won,
+    won_exact,
+)
 
 page_setup("화면 1 · 지역 진단")
 
@@ -11,7 +26,79 @@ region, buz, buz_nm = selector()
 st.caption(f"선택: {region} · {buz_nm}")
 
 st.subheader("지표")
-todo("C", "일평균 금액·건수·건당금액 (A→B 변화율) + 전국 기준선 병기")
+
+m = region_metrics(region, buz)
+nat = baseline(buz)
+
+if not len(m):
+    st.info("이 지역·업종 조합은 관측 자료가 없어 지표를 낼 수 없다.")
+else:
+    r = m.iloc[0]
+
+    # 1~3월(90일) 대 4~6월(91일). 월 수가 아니라 일수로 나눈 값이다.
+    specs = [
+        ("일평균 결제금액", r.daily_amt_A, r.daily_amt_B, r.daily_amt_chg_pct, won),
+        ("일평균 결제건수", r.daily_cnt_A, r.daily_cnt_B, r.daily_cnt_chg_pct, cases),
+        ("건당 결제금액", r.unit_A, r.unit_B, r.unit_chg_pct, won_exact),
+    ]
+    for col, (label, a, b, chg, fmt) in zip(st.columns(3), specs):
+        with col:
+            st.metric(label, fmt(b), pct(chg))
+            st.caption(f"1~3월 {fmt(a)} → 4~6월 {fmt(b)}")
+
+    # 계약 6-5절. 이 표를 빼면 전국적 흐름을 지역 고유 문제로 오진한다.
+    st.markdown("**전국 기준선 병기**")
+    if nat is None:
+        st.warning("out/national_baseline_v1.csv 가 없어 전국 기준선을 병기하지 못한다. "
+                   "기준선 없는 지역 수치는 단독으로 읽지 않는다.")
+    else:
+        rows = [
+            ("일평균 결제금액", r.daily_amt_chg_pct, nat.daily_amt_chg_pct),
+            ("일평균 결제건수", r.daily_cnt_chg_pct, nat.daily_cnt_chg_pct),
+            ("건당 결제금액", r.unit_chg_pct, nat.unit_chg_pct),
+        ]
+        st.dataframe(
+            pd.DataFrame([
+                {"지표": k, region: pct(v), f"전국 {buz_nm}": pct(n), "전국 대비 초과분": pp(v - n)}
+                for k, v, n in rows
+            ]),
+            hide_index=True, width="stretch",
+        )
+        st.caption("**전국 대비 초과분** = 이 지역 변화율 − 같은 업종 전국 변화율. "
+                   "0에 가까우면 전국과 같은 흐름이고, 음수면 전국보다 부진하다. "
+                   "전국에서도 두 업종 모두 건당 결제금액이 떨어졌다 "
+                   "(일반한식 −1.78%, 서양음식 −6.39%).")
+
+    # 집단별 분해 — GENDER_CD 기준. 법인은 소문자 x다 (계약 6-1절).
+    st.markdown("**집단별 분해**")
+    g = region_metrics(region, buz, group_by="group")
+    if not len(g):
+        st.caption("집단별 관측이 없다.")
+    else:
+        recs = []
+        for t in g.sort_values("share_B_pct", ascending=False).itertuples():
+            gn = baseline(buz, t.group)
+            excess = (lambda v, c: pp(v - getattr(gn, c)) if gn is not None else "—")
+            recs.append({
+                "집단": t.group,
+                "4~6월 금액 비중": f"{t.share_B_pct:.2f}%",
+                "일평균 금액": pct(t.daily_amt_chg_pct),
+                "금액 초과분": excess(t.daily_amt_chg_pct, "daily_amt_chg_pct"),
+                "일평균 건수": pct(t.daily_cnt_chg_pct),
+                "건수 초과분": excess(t.daily_cnt_chg_pct, "daily_cnt_chg_pct"),
+                "건당 금액": pct(t.unit_chg_pct),
+                "건당 초과분": excess(t.unit_chg_pct, "unit_chg_pct"),
+            })
+        st.dataframe(pd.DataFrame(recs), hide_index=True, width="stretch")
+
+        ex = age_excluded_share(region, buz)
+        note(
+            "집단은 <code>GENDER_CD</code> 기준이다 — <code>1</code>·<code>2</code> 일반개인, "
+            "<code>3</code> 외국인, <code>x</code> 법인. 초과분은 같은 집단의 전국 수치와 비교한 값이다.<br>"
+            f"연령별 비교는 이 화면에 아직 없다. 붙일 때 <code>AGE_CD</code> "
+            f"<code>1</code>(범위 미확인)과 <code>x</code>(법인)는 제외하며, "
+            f"이 지역·업종에서 제외되는 금액 비중은 <b>{ex:.2f}%</b>다. 위 합계에는 포함돼 있다."
+        )
 
 # ---- 유사 지역 비교 --------------------------------------------------------
 

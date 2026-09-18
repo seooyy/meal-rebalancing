@@ -118,3 +118,106 @@ def selector() -> tuple[str, str, str]:
     with c2:
         buz_nm = st.radio("업종", list(BUZ_OPTIONS), horizontal=True, key="sel_buz")
     return region, BUZ_OPTIONS[buz_nm], buz_nm
+
+
+# ---- 카드 집계 -------------------------------------------------------------
+#
+# 집계는 A의 src/load.py 를 그대로 거친다. 화면에서 groupby를 직접 쓰지 않는다.
+# (계약 6-2·6-6절: 업종 합산과 동명 시군구 합산을 load.py 가 막아준다)
+
+@st.cache_data(show_spinner="카드 데이터를 읽는 중…")
+def card() -> pd.DataFrame:
+    """카드 원본 + 파생 열. 이미 집계된 24만 행이라 1초 안에 읽힌다."""
+    from src.load import load_card
+
+    return load_card(ROOT / "data" / "ABP_CONTEST_DATA.csv")
+
+
+@st.cache_data(show_spinner=False)
+def _region_parts() -> dict[str, tuple[str, str]]:
+    """region_key -> (SIDO_NM, CCG_NM). aggregate()가 둘을 따로 받는다."""
+    pop = load_csv("population_2026m1.csv")
+    if len(pop):
+        return {r.region_key: (r.SIDO_NM, r.CCG_NM) for r in pop.itertuples()}
+    rk = load_csv("region_keys.csv")
+    return {f"{r.SIDO_NM} {r.CCG_NM}": (r.SIDO_NM, r.CCG_NM) for r in rk.itertuples()}
+
+
+def split_region(region_key: str) -> tuple[str, str]:
+    """'경기도 고양시 덕양구' -> ('경기도', '고양시 덕양구').
+
+    표를 먼저 찾고 없을 때만 첫 공백으로 자른다. 시군구명에 공백이 있는
+    지역(고양시 덕양구 등)이 있어 뒤쪽 공백으로 자르면 안 된다.
+    """
+    parts = _region_parts()
+    if region_key in parts:
+        return parts[region_key]
+    sido, _, ccg = region_key.partition(" ")
+    return sido, ccg
+
+
+@st.cache_data(show_spinner=False)
+def region_metrics(region_key: str, buz: str, group_by: str | None = None) -> pd.DataFrame:
+    """지역×업종 A/B 지표. 관측이 없으면 빈 DataFrame."""
+    from src.load import aggregate
+
+    sido, ccg = split_region(region_key)
+    try:
+        return aggregate(card(), region=ccg, buz=buz, sido=sido, group_by=group_by)
+    except ValueError:
+        return pd.DataFrame()
+
+
+@st.cache_data(show_spinner=False)
+def baseline(buz: str, group: str = "전체") -> pd.Series | None:
+    """전국 기준선 한 행. 계약 6-5절에 따라 지역 수치 옆에 반드시 병기한다."""
+    nb = load_csv("national_baseline_v1.csv")
+    if not len(nb):
+        return None
+    hit = nb[(nb["TP_BUZ_NO"].astype(str) == str(buz)) & (nb["집단"] == group)]
+    return hit.iloc[0] if len(hit) else None
+
+
+@st.cache_data(show_spinner=False)
+def age_excluded_share(region_key: str, buz: str) -> float:
+    """AGE_CD 1(범위 미확인)·x(법인)의 금액 비중 %.
+
+    계약 6-3절: 전체 합계에는 포함하되 연령 비교에서는 빼고, 제외 비중을 화면에 표시한다.
+    """
+    sido, ccg = split_region(region_key)
+    d = card()
+    sub = d[(d["SIDO_NM"] == sido) & (d["CCG_NM"] == ccg) & (d["TP_BUZ_NO"] == buz)]
+    total = sub["amt"].sum()
+    if not total:
+        return float("nan")
+    return sub.loc[sub["AGE_CD"].isin(["1", "x"]), "amt"].sum() / total * 100
+
+
+# ---- 표시 형식 -------------------------------------------------------------
+
+def won(v: float) -> str:
+    if pd.isna(v):
+        return "—"
+    if abs(v) >= 1e8:
+        return f"{v / 1e8:,.2f}억원"
+    if abs(v) >= 1e4:
+        return f"{v / 1e4:,.0f}만원"
+    return f"{v:,.0f}원"
+
+
+def cases(v: float) -> str:
+    return "—" if pd.isna(v) else f"{v:,.0f}건"
+
+
+def pct(v: float) -> str:
+    return "—" if pd.isna(v) else f"{v:+.2f}%"
+
+
+def pp(v: float) -> str:
+    """%p. 전국 대비 초과분에 쓴다."""
+    return "—" if pd.isna(v) else f"{v:+.2f}%p"
+
+
+def won_exact(v: float) -> str:
+    """원 단위 그대로. 건당 결제금액처럼 만/억으로 뭉개면 안 되는 값에 쓴다."""
+    return "—" if pd.isna(v) else f"{v:,.0f}원"
