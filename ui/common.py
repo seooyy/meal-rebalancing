@@ -46,7 +46,37 @@ CSS = """
       border: 1px dashed rgba(127,127,127,.5); border-radius: 6px;
       padding: 1.1rem; text-align: center; color: rgba(127,127,127,.95); font-size: .88rem;
   }
-  @media (prefers-color-scheme: dark) { .mr-badge { color: #fbbf24; } }
+  .mr-verdict {
+      background: rgba(127,127,127,.07); border-left: 3px solid rgba(127,127,127,.45);
+      border-radius: 4px; padding: .65rem .9rem; margin: .4rem 0 .9rem;
+  }
+  .mr-verdict-why { font-size: .86rem; line-height: 1.55; }
+  .mr-pri {
+      display: inline-block; padding: .1rem .5rem; border-radius: 999px;
+      font-size: .74rem; font-weight: 600; margin-right: .45rem;
+      border: 1px solid transparent;
+  }
+  .mr-pri-high { background: rgba(220,38,38,.14); color: #b91c1c; border-color: rgba(220,38,38,.35); }
+  .mr-pri-mid  { background: rgba(217,119,6,.14); color: #b45309; border-color: rgba(217,119,6,.35); }
+  .mr-pri-low  { background: rgba(127,127,127,.14); color: #6b7280; border-color: rgba(127,127,127,.35); }
+  .mr-card {
+      border: 1px solid rgba(127,127,127,.28); border-radius: 8px;
+      padding: .85rem 1rem; margin: .5rem 0;
+  }
+  .mr-card-head {
+      display: flex; flex-wrap: wrap; gap: .4rem 1rem;
+      align-items: baseline; justify-content: space-between;
+  }
+  .mr-card-num { font-size: .78rem; opacity: .75; }
+  .mr-card-check { font-size: .84rem; margin: .5rem 0 .25rem; opacity: .9; }
+  .mr-card-list { margin: .2rem 0 0; padding-left: 1.15rem; font-size: .89rem; line-height: 1.65; }
+  .mr-card-note { font-size: .8rem; margin-top: .5rem; opacity: .75; }
+  @media (prefers-color-scheme: dark) {
+    .mr-badge { color: #fbbf24; }
+    .mr-pri-high { color: #fca5a5; }
+    .mr-pri-mid  { color: #fbbf24; }
+    .mr-pri-low  { color: #9ca3af; }
+  }
 </style>
 """
 
@@ -251,3 +281,29 @@ def obs_count(cnt_a: float, cnt_b: float) -> float:
 def observed(cnt_a: float, cnt_b: float) -> bool:
     """A·B 두 기간 모두 기준 건수 이상 관측됐는가."""
     return obs_count(cnt_a, cnt_b) >= MIN_CASES
+
+
+# ---- 진단 (A의 src/diagnose.py) --------------------------------------------
+
+@st.cache_data(show_spinner=False)
+def diagnosis(region_key: str, buz: str) -> dict | None:
+    """단일 셀 진단. 판정 + 실행 후보 + 게이트 기록.
+
+    계약 4절: 후보가 비었으면 화면에 아무것도 그리지 않는다. 빈 목록을
+    '문제 없음'으로 바꿔 쓰지 않는다. '게이트' 문자열은 개발용이라 노출하지 않는다.
+    """
+    from src.diagnose import diagnose
+
+    sido, ccg = split_region(region_key)
+    try:
+        return diagnose(card(), region=ccg, buz=buz, sido=sido)
+    except (ValueError, KeyError):
+        return None
+
+
+_PRI_CLASS = {"높음": "mr-pri-high", "중간": "mr-pri-mid",
+              "낮음": "mr-pri-low", "없음": "mr-pri-low"}
+
+
+def priority_badge(priority: str) -> str:
+    return f'<span class="mr-pri {_PRI_CLASS.get(priority, "mr-pri-low")}">우선순위 {priority}</span>'

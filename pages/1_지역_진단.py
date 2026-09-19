@@ -7,6 +7,7 @@ from ui.common import (
     age_excluded_share,
     baseline,
     cases,
+    diagnosis,
     footer,
     load_csv,
     MIN_CASES,
@@ -17,6 +18,7 @@ from ui.common import (
     page_setup,
     pct,
     pp,
+    priority_badge,
     region_metrics,
     selector,
     todo,
@@ -208,7 +210,44 @@ else:
 """
         )
 
-st.subheader("실행 후보")
-todo("A→C", "out/region_group_metrics.csv 와 config/rules.yaml 이 나오면 연결")
+st.subheader("판정과 실행 후보")
+
+dg = diagnosis(region, buz)
+
+if dg is None:
+    st.info("이 지역·업종 조합은 진단할 수 없다.")
+elif dg["관측량부족"]:
+    note(f"<b>{NOTE_THIN}</b> — 관측 {cases(dg['지표']['관측건수_최소'])}로 기준 "
+         f"{MIN_CASES:,}건에 못 미친다. 판정과 실행 후보를 내지 않는다.")
+else:
+    # 판정은 모든 셀에 남긴다. 우선순위로 거르는 것은 아래 후보 목록뿐이다.
+    j = dg["판정"]
+    st.markdown(
+        f'<div class="mr-verdict">{priority_badge(j["우선순위"])}<b>{j["라벨"]}</b>'
+        f'<br><span class="mr-verdict-why">{j["설명"]}</span></div>',
+        unsafe_allow_html=True,
+    )
+
+    cands = dg["실행후보"]
+    if cands:
+        st.caption("후보 옆 수치는 그 후보가 겨냥하는 범위의 크기(4~6월 금액 비중)와 "
+                   "전국 대비 부진 정도(초과분)다. 비중이 큰 쪽부터 확인한다.")
+        for c in cands:
+            items = "".join(f"<li>{x}</li>" for x in c["후보"])
+            extra = f'<div class="mr-card-note">{c["비고"]}</div>' if c.get("비고") else ""
+            st.markdown(
+                f'<div class="mr-card">'
+                f'<div class="mr-card-head"><b>{c["대상"]}</b>'
+                f'<span class="mr-card-num">4~6월 비중 {c["B기간_비중_pct"]:.2f}% · '
+                f'전국 대비 초과분 {c["전국_대비_초과분_pp"]:+.2f}%p</span></div>'
+                f'<div class="mr-card-check">확인할 것 — {c["확인"]}</div>'
+                f'<ul class="mr-card-list">{items}</ul>{extra}</div>',
+                unsafe_allow_html=True,
+            )
+    elif dg["참고"]:
+        # 우선순위 '낮음'. 후보 대신 이 한 줄만 나간다.
+        note(dg["참고"])
+    # 후보도 참고도 없으면 아무것도 그리지 않는다. 빈 목록을 "문제 없음"으로
+    # 바꿔 쓰지 않는다 (계약 4절). '게이트' 문자열은 개발용이라 노출하지 않는다.
 
 footer()
