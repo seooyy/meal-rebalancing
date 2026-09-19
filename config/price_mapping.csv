@@ -1,0 +1,10 @@
+ingredient_id,name,se_cd,ctgry_cd,item_cd,vrty_cd,grd_cd,unit,unit_sz,recipe_unit,recipe_units_per_package,conversion_note
+rice,쌀,02,100,111,01,04,kg,20,kg,20,20kg 포장당 가격을 kg로 환산
+cabbage,배추 월동,02,200,211,06,04,kg,10,kg,10,10kg 포장만 허용; 다른 계절 품종을 섞지 않음
+radish,무 월동,02,200,231,06,04,kg,20,kg,20,20kg 포장만 허용
+onion,양파,02,200,245,00,04,kg,15,kg,15,15kg 포장만 허용
+green_onion,대파,02,200,246,00,04,kg,1,kg,1,1kg 기준
+garlic,깐마늘 국산,02,200,258,01,04,kg,20,kg,20,20kg 포장만 허용
+pork,돼지고기 앞다리살,02,500,514,04,05,kg,1,kg,1,중도매 자료 없으면 가정 유지; 소매 자동 대체 금지
+egg,계란 특란,02,500,516,00,05,개,30,개,30,30개 포장당 가격을 개로 환산; kg환산가격 사용 안 함
+tomato,토마토,02,200,225,00,04,kg,5,kg,5,5kg 포장만 허용
