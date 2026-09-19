@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "buz": "8006",
+  "name": "가상 서양음식 매장",
+  "is_demo": true,
+  "region_key": "경기도 이천시",
+  "price_region_code": "",
+  "period_weeks": 4,
+  "operating_days": 24,
+  "average_people_per_payment": 1,
+  "reference_card_amount": 10630,
+  "reference_note": "BC카드 관측 집계 기준. 결제 건당금액은 1인 메뉴 가격이 아닙니다.",
+  "tags": {
+    "period_weeks": "가정값",
+    "operating_days": "가정값",
+    "average_people_per_payment": "가정값"
+  },
+  "source_note": "메뉴 가격·원가·판매량은 모두 계산 시연용 가정값. 공개 메뉴 가격의 확인된 인용값이 아닙니다.",
+  "menus": [
+    {
+      "id": "pasta",
+      "name": "토마토 파스타",
+      "price": 7900,
+      "food_cost": {
+        "low": 1736,
+        "base": 2170,
+        "high": 2604
+      },
+      "daily_volume": 40,
+      "packaging": 200,
+      "fee_rate": 0.02,
+      "variable_labor": 200,
+      "tags": {
+        "price": "가정값",
+        "food_cost.low": "가정값",
+        "food_cost.base": "가정값",
+        "food_cost.high": "가정값",
+        "daily_volume": "가정값",
+        "packaging": "가정값",
+        "fee_rate": "가정값",
+        "variable_labor": "가정값"
+      }
+    },
+    {
+      "id": "pizza",
+      "name": "피자",
+      "price": 9300,
+      "food_cost": {
+        "low": 2684,
+        "base": 3355,
+        "high": 4026
+      },
+      "daily_volume": 30,
+      "packaging": 200,
+      "fee_rate": 0.02,
+      "variable_labor": 200,
+      "tags": {
+        "price": "가정값",
+        "food_cost.low": "가정값",
+        "food_cost.base": "가정값",
+        "food_cost.high": "가정값",
+        "daily_volume": "가정값",
+        "packaging": "가정값",
+        "fee_rate": "가정값",
+        "variable_labor": "가정값"
+      }
+    },
+    {
+      "id": "combo",
+      "name": "단품+음료 세트",
+      "price": 6500,
+      "food_cost": {
+        "low": 1760,
+        "base": 2200,
+        "high": 2640
+      },
+      "daily_volume": 20,
+      "packaging": 200,
+      "fee_rate": 0.02,
+      "variable_labor": 200,
+      "tags": {
+        "price": "가정값",
+        "food_cost.low": "가정값",
+        "food_cost.base": "가정값",
+        "food_cost.high": "가정값",
+        "daily_volume": "가정값",
+        "packaging": "가정값",
+        "fee_rate": "가정값",
+        "variable_labor": "가정값"
+      }
+    }
+  ]
+}
