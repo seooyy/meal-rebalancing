@@ -7,6 +7,7 @@ from ui.common import (
     age_excluded_share,
     baseline,
     cases,
+    check_guide,
     cpi_change,
     diagnosis,
     footer,
@@ -22,6 +23,7 @@ from ui.common import (
     priority_badge,
     region_metrics,
     selector,
+    split_checks,
     todo,
     won,
     won_exact,
@@ -42,6 +44,8 @@ if not len(m):
 elif not observed(m.iloc[0].cnt_A, m.iloc[0].cnt_B):
     # 관측량 게이트. 적은 건수에서는 변화율이 크게 흔들려 그대로 읽으면 오진한다.
     r = m.iloc[0]
+    # note()는 <div>로 감싸 HTML 블록이 되므로 안쪽은 마크다운으로 해석되지 않는다.
+    # 물결표를 이스케이프하면 역슬래시가 그대로 보인다 (아래 st.caption과 반대).
     note(f"<b>{NOTE_THIN}</b> — 1~3월 {cases(r.cnt_A)} · 4~6월 {cases(r.cnt_B)}로 "
          f"두 기간 중 적은 쪽이 기준 {MIN_CASES:,}건에 못 미친다. 변화율을 표시하지 않는다.")
 else:
@@ -56,7 +60,9 @@ else:
     for col, (label, a, b, chg, fmt) in zip(st.columns(3), specs):
         with col:
             st.metric(label, fmt(b), pct(chg))
-            st.caption(f"1~3월 {fmt(a)} → 4~6월 {fmt(b)}")
+            # 물결표를 이스케이프한다. '1~3월 ... 4~6월'의 ~ 두 개가 짝을 이뤄
+            # 마크다운 취소선이 되고 사이의 숫자가 전부 그어진다.
+            st.caption(f"1\\~3월 {fmt(a)} → 4\\~6월 {fmt(b)}")
 
     st.caption(f"관측 {cases(obs_count(r.cnt_A, r.cnt_B))} (두 기간 중 적은 쪽) · "
                f"기준 {MIN_CASES:,}건 이상")
@@ -236,6 +242,8 @@ else:
         )
 
 st.subheader("판정과 실행 후보")
+st.caption("여기까지는 **카드 집계만으로 낸 점검 방향**이다. 매장 가격·원가·판매량은 "
+           "아직 하나도 들어가지 않았다. 어느 것을 먼저 할지는 화면 2에서 정한다.")
 
 dg = diagnosis(region, buz)
 
@@ -253,22 +261,100 @@ else:
         unsafe_allow_html=True,
     )
 
+    # A의 설명문은 초과분(%p)만 말한다. 그것만 읽으면 "뒤처짐"을 "줄었다"로
+    # 오해한다. 미추홀구 한식 건수는 실제로 +2.82% 늘었고, 전국이 +10.09%라
+    # 뒤처진 것이다. 지역 변화율과 전국 변화율을 나란히 깔아 그 차이를 보인다.
+    mi = dg["지표"]
+    st.caption("**판정의 근거** — 전국과 나란히 놓은 값이다.")
+    for 이름, 지역값, 초과분, 전국열 in (
+        ("결제건수", mi["일평균건수_변화_pct"], mi["건수_초과분_pp"], "daily_cnt_chg_pct"),
+        ("건당금액", mi["건당금액_변화_pct"], mi["건당_초과분_pp"], "unit_chg_pct"),
+    ):
+        # 전국값은 기준선에서 직접 읽는다. 초과분에서 역산하면 둘 다 소수점
+        # 둘째 자리로 반올림된 값이라 위 병기 표와 0.01%p씩 어긋난다.
+        전국값 = float(nat[전국열]) if nat is not None else 지역값 - 초과분
+        움직임 = "늘었다" if 지역값 > 0 else "줄었다" if 지역값 < 0 else "그대로다"
+        견줌 = "뒤처진다" if 초과분 < 0 else "앞선다"
+        st.caption(f"　· **{이름}** — 이 지역 {pct(지역값)}로 {움직임}. "
+                   f"전국 {pct(전국값)}와 견주면 {abs(초과분):.2f}%p {견줌}.")
+    st.caption("　**뒤처진다 ≠ 줄었다.** 전국보다 덜 늘어도 뒤처진 것으로 잡힌다.")
+    # 이 셀의 방향을 단정해 쓰면 안 된다. 성장 중인 지역(이천시 한식 +3.71%)에
+    # "매출이 줄었고"가 그대로 나갔었다. 값을 먼저 보이고 규칙은 일반형으로 적는다.
+    st.caption(f"　**우선순위** — 이 지역 일평균 결제금액은 {pct(mi['일평균금액_변화_pct'])}다. "
+               "금액이 줄고 있으면서 그 원인이 전국 공통 흐름이 아닐 때만 '높음'이 되고, "
+               "늘고 있으면 전국보다 부진해도 '낮음'에 그친다. "
+               "매출이 늘고 있는 매장에 문제가 있다고 말하지 않기 위해서다.")
+
     cands = dg["실행후보"]
     if cands:
-        st.caption("후보 옆 수치는 그 후보가 겨냥하는 범위의 크기(4~6월 금액 비중)와 "
-                   "전국 대비 부진 정도(초과분)다. 비중이 큰 쪽부터 확인한다.")
+        guide = check_guide()
+        # 대상 라벨은 카드가 둘 이상일 때만 뜻이 있다. 셀 원인 후보(대상 '전체')와
+        # 집단 후보(외국인·법인)를 갈라 읽어야 하기 때문이다. 후보가 생기는 44칸 중
+        # 39칸은 '전체' 카드 하나뿐이라, 그때 라벨은 비교 대상 없이 남는 군더더기다.
+        갈라읽기 = len(cands) > 1
         for c in cands:
+            # '전체'는 '모든 후보'가 아니라 '집단을 나누지 않은 지역 전체'다.
+            # 화면에서 두 뜻이 헷갈려 라벨을 풀어 쓴다.
+            대상 = "지역 전체" if c["대상"] == "전체" else f'{c["대상"]} 집단'
+            범위 = ("집단을 나누지 않은 지역 전체" if c["대상"] == "전체"
+                  else f'4~6월 금액의 {c["B기간_비중_pct"]:.2f}%를 차지하는 집단')
+            if not 갈라읽기:
+                대상, 범위 = "", ""
+
+            # 항목 이름 밑에 안내 한 줄. 안내가 없는 항목은 이름만 내보낸다.
+            # A가 확인 문구를 바꿨다는 신호라 숨기지 않는다.
+            checks, 멈춤항목 = [], []
+            for name in split_checks(c["확인"]):
+                g = guide.get(name)
+                if g is None:
+                    checks.append(f'<li><span class="mr-check-name">{name}</span></li>')
+                    continue
+                if g.get("stop"):
+                    멈춤항목.append(name)
+                멈춤 = ('<span class="mr-check-stop">여기서 끝날 수 있음</span>'
+                      if g.get("stop") else "")
+                checks.append(
+                    f'<li><span class="mr-check-name">{name}</span>{멈춤}'
+                    f'<span class="mr-check-see">{g["안내"]}</span></li>'
+                )
+
             items = "".join(f"<li>{x}</li>" for x in c["후보"])
             extra = f'<div class="mr-card-note">{c["비고"]}</div>' if c.get("비고") else ""
+            # 셀 후보의 초과분은 음수(전국보다 부진)지만, 집단 후보는 게이트를
+            # 통과한 쪽이라 양수(전국 같은 집단보다 더 늘었다)다. 부호를 보지 않고
+            # abs()로 '부진'이라 쓰면 증가 신호가 부진으로 뒤집힌다.
+            기준 = "전국" if c["대상"] == "전체" else "전국 같은 집단"
+            초과 = c["전국_대비_초과분_pp"]
+            수치 = (f'{기준}보다 {abs(초과):.2f}%p 부진' if 초과 < 0
+                  else f'{기준}보다 {초과:.2f}%p 더 늘었다')
+            # 라벨을 비웠을 때 ' · 전국보다 …'처럼 구분점이 앞에 남지 않게 조립한다.
+            머리 = f'<b>{대상}</b>' if 대상 else ""
+
+            # 확인과 후보를 카드 둘로 나눈다. 한 카드에 있으면 아래 목록이 확인의
+            # 결과처럼 붙어 읽혀, 확인하기 전에 후보부터 고르게 된다.
             st.markdown(
                 f'<div class="mr-card">'
-                f'<div class="mr-card-head"><b>{c["대상"]}</b>'
-                f'<span class="mr-card-num">4~6월 비중 {c["B기간_비중_pct"]:.2f}% · '
-                f'전국 대비 초과분 {c["전국_대비_초과분_pp"]:+.2f}%p</span></div>'
-                f'<div class="mr-card-check">확인할 것 — {c["확인"]}</div>'
+                f'<div class="mr-card-head">{머리}'
+                f'<span class="mr-card-num">{f"{범위} · " if 범위 else ""}{수치}</span></div>'
+                f'<div class="mr-card-check"><b>① 먼저 확인할 것</b> — 위에서부터 순서대로 본다. '
+                f'카드 데이터에는 왜 그랬는지가 없어서, 원인은 이 확인이 가른다.</div>'
+                f'<ol class="mr-check-list">{"".join(checks)}</ol></div>',
+                unsafe_allow_html=True,
+            )
+            st.markdown(
+                f'<div class="mr-card mr-card-next">'
+                f'<div class="mr-card-check"><b>② 확인한 뒤 고를 후보</b>'
+                f'{f" · {대상}" if 대상 else ""} — 순위가 아니다. 위 ①에서 짚인 쪽을 고른다.'
+                # 멈춤 항목이 없는 카드(집단 후보 등)에 이 문장을 붙이면 거짓말이 된다.
+                f'{f" ①에서 {chr(183).join(멈춤항목)} 쪽이 원인이면 여기까지 오지 않는다." if 멈춤항목 else ""}</div>'
                 f'<ul class="mr-card-list">{items}</ul>{extra}</div>',
                 unsafe_allow_html=True,
             )
+        tail = ("후보에는 순위도 손익 계산도 없다. **화면 2**에서 매장 숫자를 넣으면 "
+                "이 후보들이 대안으로 바뀌고 필요 판매량 순으로 정렬된다.")
+        if len(cands) > 1:
+            tail = "카드는 겨냥하는 대상별로 나뉜다. **금액 비중이 큰 쪽부터** 확인한다. " + tail
+        st.caption(tail)
     elif dg["참고"]:
         # 우선순위 '낮음'. 후보 대신 이 한 줄만 나간다.
         note(dg["참고"])
