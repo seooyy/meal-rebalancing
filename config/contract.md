@@ -133,6 +133,56 @@ aggregate(d, buz=BUZ_KOREAN, group_by="region_key")               # 255개 지�
 ```
 
 ```python
+# src/diagnose.py — A 담당 (구현 완료, 2일차)
+def diagnose(df, region: str, buz: str, sido=None, rules=None) -> dict:
+    """화면 1이 쓰는 단일 셀 진단. 판정 + 실행 후보 + 게이트 기록.
+
+    반환 키:
+      지역, 업종, 관측량부족(bool)
+      지표   : 일평균금액_변화_pct, 일평균건수_변화_pct, 건당금액_변화_pct,
+               금액_초과분_pp, 건수_초과분_pp, 건당_초과분_pp, 관측건수_최소
+      판정   : 방향, 원인, 라벨, 우선순위, 설명   <- 설명은 그대로 화면에 쓴다
+      실행후보: [{규칙, 대상, 확인, 후보[], B기간_비중_pct,
+                전국_대비_초과분_pp, ...}]  <- 비었으면 아무것도 그리지 않는다
+      참고   : 우선순위 '낮음'일 때만 문자열. 후보 대신 이 한 줄만 표시한다
+      게이트  : 후보가 왜 비었는지 사람이 읽을 수 있는 문자열 목록
+      표시   : {footer, 주석, (대체문구)}  <- 카드에 고정 표시
+
+    rules를 주면 config/rules.yaml 대신 그 규칙으로 계산한다 (게이트 실험용).
+
+    **후보가 비었을 때 화면에 아무 말도 하지 않는 것이 정상이다.**
+    빈 목록을 '문제 없음'으로 바꿔 쓰지 않는다. 게이트 문자열은 개발용이며
+    사용자에게 그대로 노출하지 않는다.
+    """
+
+def region_cells(df, buz_list=None) -> pd.DataFrame:   # 255지역 x 업종 = 510칸
+def group_cells(df, buz_list=None) -> pd.DataFrame:    # + 집단 = 1,530칸
+def age_cells(df, buz_list=None) -> pd.DataFrame:      # + 연령 2~6 = 2,550칸
+def load_rules(path="config/rules.yaml") -> dict
+```
+
+**`out/region_group_metrics.csv` (2,040행 = 255지역 x 2업종 x 4행) — C가 읽는다**
+
+| 열 | 내용 |
+| --- | --- |
+| `region_key`, `buz`, `group` | `group`은 `전체`·`일반개인`·`외국인`·`법인`. **`전체` 행이 셀 단위 값이다** |
+| `amt_A/B`, `cnt_A/B`, `daily_*`, `unit_A/B` | 원지표 |
+| `daily_amt_chg_pct`, `daily_cnt_chg_pct`, `unit_chg_pct` | A→B 변화율 (%) |
+| `share_B_pct` | **셀 안에서의** B기간 금액 비중. 전체 행은 100 |
+| `금액기여도_pct` | `(집단 B금액 − 집단 A일평균×91) ÷ 전체 A일평균×91`. 집단 3행 합 = 전체 행의 `daily_amt_chg_pct` |
+| `cnt_excess_pp`, `unit_excess_pp`, `amt_excess_pp` | 전국 대비 초과분. 집단 행은 **전국 동일 집단** 기준 |
+| `n_min`, `관측량부족` | `min(cnt_A, cnt_B)`와 1,000 미달 여부 |
+| `후보생성` | 우선순위·관측량 게이트 통과 여부. **화면은 이 열만 보고 후보 영역을 그린다** |
+| `방향`, `원인`, `라벨`, `우선순위`, `설명` | 셀 단위 판정. 같은 셀의 집단 4행에 동일하게 반복된다 |
+
+`out/region_age_metrics.csv` (2,550행)는 `group` 대신 `AGE_CD`(2~6)를 쓰고,
+`금액기여도_pct`·판정 열 대신 **`제외비중_pct`** (코드 `1`+`x`의 B기간 금액 비중)를 담는다.
+**이 값을 화면에 반드시 표시한다** (6-3절).
+
+`관측량부족`이 참인 행은 수치를 숨기고 "관측량 부족"으로 표시한다. `라벨`이
+`관측량 부족`이면 A기간 관측 자체가 없어 변화율을 낼 수 없는 칸이다.
+
+```python
 # src/simulator.py — B 담당
 def required_volume(base_cm: float, unit_cm: float, setup_cost: float = 0) -> int | None:
     """필요 판매량 = 올림[(base_cm + setup_cost) / unit_cm]
