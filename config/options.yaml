@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "types": [
+    "구성 재설계",
+    "혜택 재설계",
+    "판매 노출 개선",
+    "주문·운영 편의 개선"
+  ],
+  "note": "도입 효과와 추가 판매량은 예측하지 않는다. 기본값은 가정값이다.",
+  "industries": {
+    "8001": [
+      {
+        "id": "discount",
+        "name": "1,000원 조건부 혜택",
+        "kind": "혜택 재설계",
+        "target_menu": "rice_set",
+        "price_delta": -1000,
+        "application_rate": 1,
+        "tags": {
+          "price_delta": "가정값",
+          "food_cost_delta": "가정값",
+          "application_rate": "가정값",
+          "setup_cost": "가정값",
+          "extra_minutes": "가정값",
+          "extra_labor_cost": "가정값",
+          "cannibalization": "가정값"
+        }
+      },
+      {
+        "id": "redesign",
+        "name": "기본 구성 조정",
+        "kind": "구성 재설계",
+        "target_menu": "rice_set",
+        "price_delta": -1000,
+        "food_cost_delta": -700,
+        "extra_minutes": 0.5,
+        "tags": {
+          "price_delta": "가정값",
+          "food_cost_delta": "가정값",
+          "application_rate": "가정값",
+          "setup_cost": "가정값",
+          "extra_minutes": "가정값",
+          "extra_labor_cost": "가정값",
+          "cannibalization": "가정값"
+        }
+      },
+      {
+        "id": "visibility",
+        "name": "메뉴 설명·노출 개선",
+        "kind": "판매 노출 개선",
+        "target_menu": "rice_set",
+        "setup_cost": 300000,
+        "tags": {
+          "price_delta": "가정값",
+          "food_cost_delta": "가정값",
+          "application_rate": "가정값",
+          "setup_cost": "가정값",
+          "extra_minutes": "가정값",
+          "extra_labor_cost": "가정값",
+          "cannibalization": "가정값"
+        }
+      },
+      {
+        "id": "ordering",
+        "name": "주문 안내·수용 방식 개선",
+        "kind": "주문·운영 편의 개선",
+        "target_menu": "rice_set",
+        "setup_cost": 100000,
+        "extra_minutes": 0.2,
+        "tags": {
+          "price_delta": "가정값",
+          "food_cost_delta": "가정값",
+          "application_rate": "가정값",
+          "setup_cost": "가정값",
+          "extra_minutes": "가정값",
+          "extra_labor_cost": "가정값",
+          "cannibalization": "가정값"
+        }
+      }
+    ],
+    "8006": [
+      {
+        "id": "discount",
+        "name": "1,000원 조건부 혜택",
+        "kind": "혜택 재설계",
+        "target_menu": "pasta",
+        "price_delta": -1000,
+        "application_rate": 1,
+        "tags": {
+          "price_delta": "가정값",
+          "food_cost_delta": "가정값",
+          "application_rate": "가정값",
+          "setup_cost": "가정값",
+          "extra_minutes": "가정값",
+          "extra_labor_cost": "가정값",
+          "cannibalization": "가정값"
+        }
+      },
+      {
+        "id": "redesign",
+        "name": "기본 구성 조정",
+        "kind": "구성 재설계",
+        "target_menu": "pasta",
+        "price_delta": -1000,
+        "food_cost_delta": -400,
+        "extra_minutes": 0.5,
+        "tags": {
+          "price_delta": "가정값",
+          "food_cost_delta": "가정값",
+          "application_rate": "가정값",
+          "setup_cost": "가정값",
+          "extra_minutes": "가정값",
+          "extra_labor_cost": "가정값",
+          "cannibalization": "가정값"
+        }
+      },
+      {
+        "id": "visibility",
+        "name": "메뉴 설명·노출 개선",
+        "kind": "판매 노출 개선",
+        "target_menu": "pasta",
+        "setup_cost": 300000,
+        "tags": {
+          "price_delta": "가정값",
+          "food_cost_delta": "가정값",
+          "application_rate": "가정값",
+          "setup_cost": "가정값",
+          "extra_minutes": "가정값",
+          "extra_labor_cost": "가정값",
+          "cannibalization": "가정값"
+        }
+      },
+      {
+        "id": "ordering",
+        "name": "주문 안내·수용 방식 개선",
+        "kind": "주문·운영 편의 개선",
+        "target_menu": "pasta",
+        "setup_cost": 80000,
+        "extra_minutes": 0.2,
+        "tags": {
+          "price_delta": "가정값",
+          "food_cost_delta": "가정값",
+          "application_rate": "가정값",
+          "setup_cost": "가정값",
+          "extra_minutes": "가정값",
+          "extra_labor_cost": "가정값",
+          "cannibalization": "가정값"
+        }
+      }
+    ]
+  }
+}
