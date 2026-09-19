@@ -7,6 +7,7 @@ from ui.common import (
     age_excluded_share,
     baseline,
     cases,
+    cpi_change,
     diagnosis,
     footer,
     load_csv,
@@ -127,6 +128,30 @@ else:
             f"연령별 비교는 이 화면에 아직 없다. 붙일 때 <code>AGE_CD</code> "
             f"<code>1</code>(범위 미확인)과 <code>x</code>(법인)는 제외하며, "
             f"이 지역·업종에서 제외되는 금액 비중은 <b>{ex:.2f}%</b>다. 위 합계에는 포함돼 있다."
+        )
+
+    # 물가 참고 지표 (단계 6-A). 주 지표가 아니라 건당금액에 붙는 각주다.
+    # subheader를 쓰지 않고 낮게 배치해 주 지표처럼 보이지 않게 한다.
+    cpi = cpi_change(buz)
+    if cpi is not None and nat is not None:
+        st.markdown("**물가 참고 지표**")
+        real_region = r.unit_chg_pct - cpi
+        real_nat = nat.unit_chg_pct - cpi
+        st.dataframe(
+            pd.DataFrame([
+                {"건당 결제금액": region, "명목": pct(r.unit_chg_pct),
+                 "외식 물가": pct(cpi), "실질(참고)": pct(real_region)},
+                {"건당 결제금액": f"전국 {buz_nm}", "명목": pct(nat.unit_chg_pct),
+                 "외식 물가": pct(cpi), "실질(참고)": pct(real_nat)},
+            ]),
+            hide_index=True, width="stretch",
+        )
+        note(
+            "<b>전국 외식 물가 기준</b>이다. 시군구 물가가 아니라 지역 물가와 다를 수 있다.<br>"
+            "품목 단순 평균이며 소비 비중 가중평균이 아니다. 단순 차감이며 정밀 "
+            "디플레이션이 아니다. 카드 결제금액은 개인 소비 바스켓과 범위가 달라 "
+            "두 지표를 같은 선상에 놓지 않는다.<br>"
+            "물가 상승분을 빼고도 감소가 남는지만 본다. 주 지표를 대체하지 않는다."
         )
 
 # ---- 유사 지역 비교 --------------------------------------------------------

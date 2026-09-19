@@ -307,3 +307,21 @@ _PRI_CLASS = {"높음": "mr-pri-high", "중간": "mr-pri-mid",
 
 def priority_badge(priority: str) -> str:
     return f'<span class="mr-pri {_PRI_CLASS.get(priority, "mr-pri-low")}">우선순위 {priority}</span>'
+
+
+# ---- 외식 물가 (단계 6-A) --------------------------------------------------
+
+@st.cache_data(show_spinner=False)
+def cpi_change(buz: str) -> float | None:
+    """업종별 외식 물가 변화율 %. out/cpi_dineout.csv 가 없으면 None.
+
+    None이면 화면은 물가 섹션을 조용히 접는다. 참고 지표라서 없다고 해서
+    나머지 화면이 막히면 안 된다.
+    """
+    df = load_csv("cpi_dineout.csv")
+    if not len(df):
+        return None
+    # 업종 코드가 float으로 읽혀 '8001.0'이 되는 경우를 막는다.
+    code = df["buz"].astype(str).str.replace(r"\.0$", "", regex=True)
+    hit = df[(code == str(buz)) & (df["수준"] == "업종")]
+    return float(hit.iloc[0]["chg_pct"]) if len(hit) else None
