@@ -71,6 +71,18 @@ CSS = """
   .mr-card-check { font-size: .84rem; margin: .5rem 0 .25rem; opacity: .9; }
   .mr-card-list { margin: .2rem 0 0; padding-left: 1.15rem; font-size: .89rem; line-height: 1.65; }
   .mr-card-note { font-size: .8rem; margin-top: .5rem; opacity: .75; }
+  .mr-check-list { margin: .35rem 0 .1rem; padding-left: 1.25rem; font-size: .86rem; line-height: 1.5; }
+  .mr-check-list li { margin-bottom: .6rem; }
+  .mr-check-name { font-weight: 600; }
+  .mr-check-stop {
+      display: inline-block; padding: .04rem .38rem; border-radius: 3px; margin-left: .35rem;
+      font-size: .7rem; font-weight: 600; vertical-align: .05rem;
+      background: rgba(127,127,127,.16); border: 1px solid rgba(127,127,127,.35);
+  }
+  .mr-check-see { display: block; opacity: .85; margin-top: .1rem; }
+  .mr-check-then { display: block; font-size: .82rem; opacity: .72; margin-top: .1rem; }
+  /* 후보 카드는 확인 카드에 딸린다. 들여쓰기와 점선으로 순서를 보인다. */
+  .mr-card-next { border-style: dashed; margin: .2rem 0 .9rem 1.4rem; }
   @media (prefers-color-scheme: dark) {
     .mr-badge { color: #fbbf24; }
     .mr-pri-high { color: #fca5a5; }
@@ -307,6 +319,39 @@ _PRI_CLASS = {"높음": "mr-pri-high", "중간": "mr-pri-mid",
 
 def priority_badge(priority: str) -> str:
     return f'<span class="mr-pri {_PRI_CLASS.get(priority, "mr-pri-low")}">우선순위 {priority}</span>'
+
+
+# ---- 확인 항목 안내 --------------------------------------------------------
+#
+# A의 rules.yaml은 확인할 항목의 이름만 준다 ("영업일·품절·주문 불편·고객 의견").
+# 이름만으로는 무엇을 꺼내 보고 봤으면 뭐가 갈리는지 알 수 없어서,
+# C가 소유하는 config/check_guide.yaml로 항목마다 세 줄을 붙인다.
+
+CHECK_GUIDE_PATH = ROOT / "config" / "check_guide.yaml"
+
+
+@st.cache_data(show_spinner=False)
+def check_guide(path: str = str(CHECK_GUIDE_PATH)) -> dict:
+    import yaml
+
+    guide = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+    if not guide.get("items"):
+        raise ValueError(f"{path}에 items가 없습니다.")
+    return guide["items"]
+
+
+def split_checks(text: str) -> list[str]:
+    """A의 확인 문자열을 항목으로 끊는다.
+
+    '영업일·품절·주문 불편·고객 의견, 그리고 메뉴 판매 비중·옵션 선택률'
+      -> ['영업일', '품절', '주문 불편', '고객 의견', '메뉴 판매 비중', '옵션 선택률']
+
+    '실제 이용 언어와 주문의 어려움'처럼 구분자가 없으면 통째로 한 항목이다.
+    """
+    items = []
+    for chunk in str(text or "").split(", 그리고 "):
+        items += [p.strip() for p in chunk.split("·") if p.strip()]
+    return items
 
 
 # ---- 외식 물가 (단계 6-A) --------------------------------------------------
