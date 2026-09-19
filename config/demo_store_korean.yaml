@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "buz": "8001",
+  "name": "가상 한식 매장",
+  "is_demo": true,
+  "region_key": "인천광역시 미추홀구",
+  "price_region_code": "2300",
+  "period_weeks": 4,
+  "operating_days": 24,
+  "average_people_per_payment": 3,
+  "reference_card_amount": 36321,
+  "reference_note": "BC카드 관측 집계 기준. 결제 건당금액은 1인 메뉴 가격이 아닙니다.",
+  "tags": {
+    "period_weeks": "가정값",
+    "operating_days": "가정값",
+    "average_people_per_payment": "가정값"
+  },
+  "source_note": "메뉴 가격·원가·판매량은 모두 계산 시연용 가정값. 공개 메뉴 가격의 확인된 인용값이 아닙니다.",
+  "menus": [
+    {
+      "id": "rice_set",
+      "name": "백반류",
+      "price": 10000,
+      "food_cost": {
+        "low": 2348,
+        "base": 2935,
+        "high": 3522
+      },
+      "daily_volume": 40,
+      "packaging": 200,
+      "fee_rate": 0.02,
+      "variable_labor": 200,
+      "tags": {
+        "price": "가정값",
+        "food_cost.low": "가정값",
+        "food_cost.base": "가정값",
+        "food_cost.high": "가정값",
+        "daily_volume": "가정값",
+        "packaging": "가정값",
+        "fee_rate": "가정값",
+        "variable_labor": "가정값"
+      }
+    },
+    {
+      "id": "stew",
+      "name": "찌개류",
+      "price": 9500,
+      "food_cost": {
+        "low": 2244,
+        "base": 2805,
+        "high": 3366
+      },
+      "daily_volume": 30,
+      "packaging": 200,
+      "fee_rate": 0.02,
+      "variable_labor": 200,
+      "tags": {
+        "price": "가정값",
+        "food_cost.low": "가정값",
+        "food_cost.base": "가정값",
+        "food_cost.high": "가정값",
+        "daily_volume": "가정값",
+        "packaging": "가정값",
+        "fee_rate": "가정값",
+        "variable_labor": "가정값"
+      }
+    },
+    {
+      "id": "noodle",
+      "name": "면류",
+      "price": 8000,
+      "food_cost": {
+        "low": 1224,
+        "base": 1530,
+        "high": 1836
+      },
+      "daily_volume": 20,
+      "packaging": 200,
+      "fee_rate": 0.02,
+      "variable_labor": 200,
+      "tags": {
+        "price": "가정값",
+        "food_cost.low": "가정값",
+        "food_cost.base": "가정값",
+        "food_cost.high": "가정값",
+        "daily_volume": "가정값",
+        "packaging": "가정값",
+        "fee_rate": "가정값",
+        "variable_labor": "가정값"
+      }
+    }
+  ]
+}

@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "buz": "8001",
+  "note": "시연용 가정 레시피. 양은 조리 전 투입량이며 부산물·폐기량이 있으면 투입량에 포함해 입력한다.",
+  "source": "가상 사례; 실제 레시피 검증 미완료",
+  "ingredients": {
+    "rice": {
+      "name": "쌀",
+      "unit": "kg",
+      "assumed_unit_price": {
+        "low": 2800,
+        "base": 3500,
+        "high": 4200
+      },
+      "tag": "가정값",
+      "source": "계산 시연용 가정 단가; 실제 매입단가 또는 수집 가격으로 교체",
+      "checked_at": "2026-09-19"
+    },
+    "pork": {
+      "name": "돼지고기 앞다리살",
+      "unit": "kg",
+      "assumed_unit_price": {
+        "low": 12000,
+        "base": 15000,
+        "high": 18000
+      },
+      "tag": "가정값",
+      "source": "계산 시연용 가정 단가; 실제 매입단가 또는 수집 가격으로 교체",
+      "checked_at": "2026-09-19"
+    },
+    "cabbage": {
+      "name": "배추",
+      "unit": "kg",
+      "assumed_unit_price": {
+        "low": 2000,
+        "base": 2500,
+        "high": 3000
+      },
+      "tag": "가정값",
+      "source": "계산 시연용 가정 단가; 실제 매입단가 또는 수집 가격으로 교체",
+      "checked_at": "2026-09-19"
+    },
+    "onion": {
+      "name": "양파",
+      "unit": "kg",
+      "assumed_unit_price": {
+        "low": 2000,
+        "base": 2500,
+        "high": 3000
+      },
+      "tag": "가정값",
+      "source": "계산 시연용 가정 단가; 실제 매입단가 또는 수집 가격으로 교체",
+      "checked_at": "2026-09-19"
+    },
+    "garlic": {
+      "name": "깐마늘",
+      "unit": "kg",
+      "assumed_unit_price": {
+        "low": 8000,
+        "base": 10000,
+        "high": 12000
+      },
+      "tag": "가정값",
+      "source": "계산 시연용 가정 단가; 실제 매입단가 또는 수집 가격으로 교체",
+      "checked_at": "2026-09-19"
+    },
+    "seasoning": {
+      "name": "조미료·양념",
+      "unit": "kg",
+      "assumed_unit_price": {
+        "low": 9600,
+        "base": 12000,
+        "high": 14400
+      },
+      "tag": "가정값",
+      "source": "계산 시연용 가정 단가; 실제 매입단가 또는 수집 가격으로 교체",
+      "checked_at": "2026-09-19"
+    },
+    "green_onion": {
+      "name": "대파",
+      "unit": "kg",
+      "assumed_unit_price": {
+        "low": 2800,
+        "base": 3500,
+        "high": 4200
+      },
+      "tag": "가정값",
+      "source": "계산 시연용 가정 단가; 실제 매입단가 또는 수집 가격으로 교체",
+      "checked_at": "2026-09-19"
+    },
+    "noodles": {
+      "name": "면",
+      "unit": "kg",
+      "assumed_unit_price": {
+        "low": 3200,
+        "base": 4000,
+        "high": 4800
+      },
+      "tag": "가정값",
+      "source": "계산 시연용 가정 단가; 실제 매입단가 또는 수집 가격으로 교체",
+      "checked_at": "2026-09-19"
+    },
+    "egg": {
+      "name": "계란",
+      "unit": "개",
+      "assumed_unit_price": {
+        "low": 240,
+        "base": 300,
+        "high": 360
+      },
+      "tag": "가정값",
+      "source": "계산 시연용 가정 단가; 실제 매입단가 또는 수집 가격으로 교체",
+      "checked_at": "2026-09-19"
+    },
+    "radish": {
+      "name": "무",
+      "unit": "kg",
+      "assumed_unit_price": {
+        "low": 1600,
+        "base": 2000,
+        "high": 2400
+      },
+      "tag": "가정값",
+      "source": "계산 시연용 가정 단가; 실제 매입단가 또는 수집 가격으로 교체",
+      "checked_at": "2026-09-19"
+    }
+  },
+  "menus": {
+    "rice_set": {
+      "rice": 0.1,
+      "pork": 0.12,
+      "cabbage": 0.1,
+      "onion": 0.03,
+      "garlic": 0.01,
+      "seasoning": 0.03
+    },
+    "stew": {
+      "rice": 0.1,
+      "pork": 0.1,
+      "cabbage": 0.12,
+      "onion": 0.05,
+      "green_onion": 0.02,
+      "garlic": 0.01,
+      "seasoning": 0.03
+    },
+    "noodle": {
+      "noodles": 0.15,
+      "egg": 1,
+      "radish": 0.04,
+      "green_onion": 0.02,
+      "seasoning": 0.04
+    }
+  }
+}

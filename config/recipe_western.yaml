@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "buz": "8006",
+  "note": "시연용 가정 레시피. 양은 조리 전 투입량이며 부산물·폐기량이 있으면 투입량에 포함해 입력한다.",
+  "source": "가상 사례; 실제 레시피 검증 미완료",
+  "ingredients": {
+    "pasta": {
+      "name": "파스타면",
+      "unit": "kg",
+      "assumed_unit_price": {
+        "low": 4000,
+        "base": 5000,
+        "high": 6000
+      },
+      "tag": "가정값",
+      "source": "계산 시연용 가정 단가; 실제 매입단가 또는 수집 가격으로 교체",
+      "checked_at": "2026-09-19"
+    },
+    "tomato": {
+      "name": "토마토",
+      "unit": "kg",
+      "assumed_unit_price": {
+        "low": 4000,
+        "base": 5000,
+        "high": 6000
+      },
+      "tag": "가정값",
+      "source": "계산 시연용 가정 단가; 실제 매입단가 또는 수집 가격으로 교체",
+      "checked_at": "2026-09-19"
+    },
+    "onion": {
+      "name": "양파",
+      "unit": "kg",
+      "assumed_unit_price": {
+        "low": 2000,
+        "base": 2500,
+        "high": 3000
+      },
+      "tag": "가정값",
+      "source": "계산 시연용 가정 단가; 실제 매입단가 또는 수집 가격으로 교체",
+      "checked_at": "2026-09-19"
+    },
+    "garlic": {
+      "name": "깐마늘",
+      "unit": "kg",
+      "assumed_unit_price": {
+        "low": 8000,
+        "base": 10000,
+        "high": 12000
+      },
+      "tag": "가정값",
+      "source": "계산 시연용 가정 단가; 실제 매입단가 또는 수집 가격으로 교체",
+      "checked_at": "2026-09-19"
+    },
+    "olive_oil": {
+      "name": "올리브유",
+      "unit": "L",
+      "assumed_unit_price": {
+        "low": 14400,
+        "base": 18000,
+        "high": 21600
+      },
+      "tag": "가정값",
+      "source": "계산 시연용 가정 단가; 실제 매입단가 또는 수집 가격으로 교체",
+      "checked_at": "2026-09-19"
+    },
+    "cheese": {
+      "name": "치즈",
+      "unit": "kg",
+      "assumed_unit_price": {
+        "low": 11200,
+        "base": 14000,
+        "high": 16800
+      },
+      "tag": "가정값",
+      "source": "계산 시연용 가정 단가; 실제 매입단가 또는 수집 가격으로 교체",
+      "checked_at": "2026-09-19"
+    },
+    "dough": {
+      "name": "피자도우",
+      "unit": "개",
+      "assumed_unit_price": {
+        "low": 960,
+        "base": 1200,
+        "high": 1440
+      },
+      "tag": "가정값",
+      "source": "계산 시연용 가정 단가; 실제 매입단가 또는 수집 가격으로 교체",
+      "checked_at": "2026-09-19"
+    },
+    "bread": {
+      "name": "빵",
+      "unit": "개",
+      "assumed_unit_price": {
+        "low": 560,
+        "base": 700,
+        "high": 840
+      },
+      "tag": "가정값",
+      "source": "계산 시연용 가정 단가; 실제 매입단가 또는 수집 가격으로 교체",
+      "checked_at": "2026-09-19"
+    },
+    "egg": {
+      "name": "계란",
+      "unit": "개",
+      "assumed_unit_price": {
+        "low": 240,
+        "base": 300,
+        "high": 360
+      },
+      "tag": "가정값",
+      "source": "계산 시연용 가정 단가; 실제 매입단가 또는 수집 가격으로 교체",
+      "checked_at": "2026-09-19"
+    },
+    "drink": {
+      "name": "음료",
+      "unit": "개",
+      "assumed_unit_price": {
+        "low": 520,
+        "base": 650,
+        "high": 780
+      },
+      "tag": "가정값",
+      "source": "계산 시연용 가정 단가; 실제 매입단가 또는 수집 가격으로 교체",
+      "checked_at": "2026-09-19"
+    }
+  },
+  "menus": {
+    "pasta": {
+      "pasta": 0.12,
+      "tomato": 0.15,
+      "onion": 0.04,
+      "garlic": 0.01,
+      "olive_oil": 0.015,
+      "cheese": 0.025
+    },
+    "pizza": {
+      "dough": 1,
+      "tomato": 0.1,
+      "cheese": 0.1,
+      "onion": 0.03,
+      "olive_oil": 0.01
+    },
+    "combo": {
+      "bread": 1,
+      "egg": 1,
+      "cheese": 0.025,
+      "tomato": 0.04,
+      "drink": 1
+    }
+  }
+}
