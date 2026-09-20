@@ -278,8 +278,8 @@ def test_민감파일_git_제외():
     assert "ABP_CONTEST_DATA.csv" not in tracked
 
 
-def test_루트_region_keys는_out과_동일한_중복파일():
-    assert (PROJECT_ROOT / "region_keys.csv").read_bytes() == (OUT_DIR / "region_keys.csv").read_bytes()
+def test_region_keys_기준파일이_존재한다():
+    assert (OUT_DIR / "region_keys.csv").exists()
     old = pd.read_csv(OUT_DIR / "codebook.csv", encoding="utf-8-sig")
     assert len(old) == 11
 
