@@ -1,4 +1,4 @@
-"""대안 추천 — C 소유.
+"""지역 진단 후보를 손익 조건으로 비교하는 추천 정책.
 
 기획서 6절의 2단계 추천이다.
 
@@ -230,58 +230,66 @@ def render(result: dict | None, dg: dict | None) -> dict | None:
     ranked = outcome["ranked"]
     menus = {menu["id"]: menu for menu in result["store"]["menus"]}
 
-    st.subheader("후보별 공헌이익 비교")
-    st.caption("공헌이익은 판매가에서 식재료비·포장비·수수료·변동 인건비를 뺀 금액입니다. 순이익은 아닙니다.")
-    st.dataframe([{
-        "후보": row["alternative"],
-        "현재 공헌이익": row["base_store_cm"],
-        "실행 후 공헌이익": row["after_store_cm_after_setup"],
-        "차이": (None if row["base_store_cm"] is None else
-                row["after_store_cm_after_setup"] - row["base_store_cm"]),
-        "손익 유지에 필요한 하루 추가 판매": (None if row["required_daily_volume"] is None else round(
-            row["required_daily_volume"] - menus[row["target_menu"]]["daily_volume"], 1)),
-    } for row in ranked], hide_index=True, width="stretch")
-    st.caption("후보 기본 가정으로 계산했습니다. 실제 할인액·도입비·추가 원가가 다르면 결과가 달라집니다.")
-
     if ranked:
         top = ranked[0]
-        st.markdown(f'**1순위 후보: {top["alternative"]}**')
         extra = (None if top["required_daily_volume"] is None else
                  top["required_daily_volume"] - menus[top["target_menu"]]["daily_volume"])
-        reason = ("판매량을 정확히 입력하면 하루 추가 판매 부담을 계산할 수 있습니다."
-                  if extra is None else f"현재 공헌이익을 유지하는 데 필요한 하루 추가 판매가 약 {extra:,.1f}건으로 가장 적습니다.")
-        st.write("1순위 이유: " + reason)
+        reason = (f"현재 판매량을 100으로 보면 {top['required_index']:,.0f}까지 늘어야 현재 이익을 유지할 수 있습니다."
+                  if extra is None and top["required_index"] is not None
+                  else "판매량을 입력하면 하루에 더 팔아야 하는 수량을 계산할 수 있습니다."
+                  if extra is None
+                  else f"현재 이익을 유지하려면 하루 약 {extra:,.1f}건을 더 팔아야 하며, 비교한 실행안 중 부담이 가장 작습니다.")
+        st.success(f'우선 검토 실행안 · {top["alternative"]}\n\n{reason}')
     else:
-        st.info("손익 유지 조건을 계산할 수 있는 후보가 없습니다.")
+        st.info("현재 이익을 유지하는 조건을 계산할 수 있는 실행안이 없습니다.")
 
     if outcome["unstable"]:
-        st.warning("원가가 달라지면 1순위가 바뀝니다. 실제 원가를 먼저 확인하세요.")
+        st.warning("재료비에 따라 우선순위가 달라집니다. 실제 원가를 먼저 확인해 주세요.")
     else:
-        st.caption("원가의 낮음·기준·높음 범위에서 1순위가 바뀌지 않았습니다.")
+        st.caption("재료비를 낮음·기준·높음으로 바꿔도 첫 번째 실행안은 같습니다.")
 
-    with st.expander("후보 계산에 사용한 기본 가정"):
-        labels = {"price_delta": "판매가 변화", "food_cost_delta": "추가 원가",
-                  "application_rate": "적용 비율", "setup_cost": "도입비",
+    st.markdown("**실행안별 핵심 결과**")
+    st.caption("공헌이익은 판매가격에서 재료비·포장비·수수료·변동 인건비를 뺀 금액이며 순이익과 다릅니다.")
+    st.dataframe([{
+        "순위": row["순위"],
+        "실행안": row["alternative"],
+        "더 팔아야 하는 비율(%)": None if row["increase_pct"] is None else round(row["increase_pct"], 1),
+        "하루에 더 팔아야 하는 수량": (None if row["required_daily_volume"] is None else round(
+            row["required_daily_volume"] - menus[row["target_menu"]]["daily_volume"], 1)),
+        "현재 판매량을 100으로 봤을 때": row["required_index"],
+    } for row in ranked], hide_index=True, width="stretch")
+    st.caption("이 순위는 현재 이익을 유지하기 위해 얼마나 더 팔아야 하는지를 비교한 결과이며 실제 판매 성과를 예측하지 않습니다.")
+
+    with st.expander("상세 계산값과 입력 조건 보기"):
+        st.dataframe([{
+            "실행안": row["alternative"], "현재 공헌이익": row["base_store_cm"],
+            "판매량이 같을 때 공헌이익": row["after_store_cm_after_setup"],
+            "차이": None if row["base_store_cm"] is None else row["after_store_cm_after_setup"] - row["base_store_cm"],
+        } for row in ranked], hide_index=True, width="stretch")
+        labels = {"price_delta": "판매가격 증감", "food_cost_delta": "재료비 증감",
+                  "application_rate": "적용 비율", "setup_cost": "초기 비용",
                   "extra_minutes": "추가 시간", "extra_labor_cost": "추가 인건비"}
         for row in ranked:
             assumptions = row.get("기본 가정", {})
             text = " · ".join(f"{labels.get(k, k)} {v}" for k, v in assumptions.items()) or "별도 변경값 없음"
-            st.caption(f'{row["alternative"]}: {text}')
+            st.caption(f'{row["alternative"]} · {text}')
 
     assumptions = []
+    if any(menu.get("daily_volume") is None for menu in result["store"]["menus"]):
+        assumptions.append("판매량 미입력: 대상 메뉴 지수 100 기준이며 도입비·잠식·매장 합계는 제외")
     for menu in result["store"]["menus"]:
+        if menu.get("public_price_ingredients"):
+            assumptions.append(f'{menu["name"]} 공개가격 적용: ' + ", ".join(menu["public_price_ingredients"]))
         for label in menu.get("assumed_zero_fields", ()):
             assumptions.append(f'{menu["name"]} {label} 미입력: 0원 가정')
         if "가정값" in menu.get("tags", {}).values():
             assumptions.append(f'{menu["name"]} 원가 모름: 기본 원가율 35%로 참고 계산')
-    st.markdown("**미입력·가정값 목록**")
+    st.markdown("**계산 전에 확인할 내용**")
     if assumptions:
         for line in dict.fromkeys(assumptions):
             st.caption("- " + line)
     else:
         st.caption("- 미입력으로 0원 처리한 항목이 없습니다.")
     for row in outcome["excluded"]:
-        st.caption(f'계산 제외 · {row["alternative"]}: {row["제외사유"]}')
-    st.caption("추천은 현재 입력값과 후보 기본 가정에서 공헌이익 부담이 가장 작은 실행안입니다. 성공 가능성의 순위가 아닙니다.")
+        st.caption(f'비교 제외 · {row["alternative"]}: {row["제외사유"]}')
     return outcome
-

@@ -1,11 +1,13 @@
 """Step 2: store profile editor with a menu list and focused menu editor."""
 import streamlit as st
 
-from src.store_profile import PRICE_SOURCES, profile_from_form
-from ui.common import footer, page_setup, selector
+from src.store_profile import (PRICE_SOURCES, profile_from_form,
+                               public_price_options, public_price_range)
+from ui.common import footer, page_setup, selector, stepper
 
-page_setup("가게 정보")
-st.caption("손익 계산에 필요한 가게 숫자만 입력합니다. * 표시는 필수이며, 입력값은 이 브라우저 세션에만 저장됩니다.")
+page_setup("2단계 · 가게 정보")
+stepper(2)
+st.caption("메뉴별 판매가격과 비용을 입력하면 실행안별 손익 유지 조건을 계산합니다. 입력값은 현재 브라우저 세션에만 저장됩니다.")
 region, buz, buz_name = selector()
 profiles = st.session_state.setdefault("store_profiles", {})
 profile_key = (region, buz)
@@ -25,17 +27,23 @@ def seed(menu_id, menu=None):
                 "fee": menu.fee_rate if menu else 0.0,
                 "has_labor": bool(menu and (menu.variable_labor or "변동 인건비" not in menu.assumed_zero_fields)),
                 "labor": menu.variable_labor if menu else 0.0,
-                "cost_source": menu.cost_source if menu else "rate",
+                "cost_source": ("recipe" if menu and menu.cost_source == "actual" else menu.cost_source) if menu else "rate",
                 "cost_rate": menu.food_cost_rate if menu and menu.food_cost_rate is not None else .35,
                 "ingredient_count": max(1, len(menu.ingredients) if menu else 1)}
     for field, value in defaults.items():
         st.session_state.setdefault(key(menu_id, field), value)
     for index in range(defaults["ingredient_count"]):
-        for field, value in {"name": "", "quantity": 0.0, "unit": "g", "purchase": 0.0}.items():
+        for field, value in {"name": "", "quantity": 0.0, "unit": "g", "purchase": 0.0,
+                             "purchase_low": None, "purchase_high": None, "public_id": "",
+                             "price_mode": "direct"}.items():
             st.session_state.setdefault(key(menu_id, f"ingredient.{index}.{field}"), value)
     for index, ingredient in enumerate(menu.ingredients if menu else ()):
         for field, value in {"name": ingredient.name, "quantity": ingredient.quantity,
-                             "unit": ingredient.unit, "purchase": ingredient.purchase_price}.items():
+                             "unit": ingredient.unit, "purchase": ingredient.purchase_price,
+                             "purchase_low": ingredient.purchase_price_low,
+                             "purchase_high": ingredient.purchase_price_high,
+                             "public_id": ingredient.public_price_id or "",
+                             "price_mode": "public" if ingredient.public_price_id else "direct"}.items():
             st.session_state.setdefault(key(menu_id, f"ingredient.{index}.{field}"), value)
 
 
@@ -46,7 +54,7 @@ def load_example():
          "packaging": 300, "fee": .03, "labor": 500, "cost_source": "rate", "cost_rate": .38,
          "ingredients": []},
         {"id": "menu_2", "name": "김치찌개", "price": 9000, "volume": 18,
-         "packaging": 300, "fee": .03, "labor": 400, "cost_source": "actual", "cost_rate": None,
+         "packaging": 300, "fee": .03, "labor": 400, "cost_source": "recipe", "cost_rate": None,
          "ingredients": [
              {"name": "돼지고기", "quantity": .15, "unit": "kg", "purchase": 12000},
              {"name": "김치", "quantity": .25, "unit": "kg", "purchase": 4000},
@@ -70,6 +78,8 @@ def load_example():
         for index, ingredient in enumerate(menu["ingredients"]):
             for field, value in ingredient.items():
                 st.session_state[key(menu["id"], f"ingredient.{index}.{field}")] = value
+            st.session_state[key(menu["id"], f"ingredient.{index}.public_id")] = ""
+            st.session_state[key(menu["id"], f"ingredient.{index}.price_mode")] = "direct"
 
 if ids_key not in st.session_state:
     initial = [menu.id for menu in saved.menus] if saved and saved.menus else ["menu_1"]
@@ -87,7 +97,7 @@ if st.button("예시 입력값 채우기", key=prefix + ".example"):
     st.rerun()
 st.caption("현재 입력을 예시 가게로 바꿉니다. 제육볶음 정식(원가율), 김치찌개(실제 레시피 원가), 비빔밥(원가 모름)으로 결과를 비교할 수 있습니다.")
 
-st.subheader(f"{buz_name} · 최근 4주 기준")
+st.subheader("1. 계산 기간과 운영 조건")
 st.caption("하루 판매량은 특정 하루가 아니라 최근 4주 총판매량을 실제 영업일로 나눈 값이 가장 안정적입니다.")
 operating_days = st.number_input("최근 4주 실제 영업일 *", min_value=1, max_value=28,
                                  value=int(saved_value("operating_days", 24)), key=prefix + ".days")
@@ -100,7 +110,21 @@ sales_volume_basis = st.radio(
 if sales_volume_basis == "estimate":
     st.info("대략값이어도 계산할 수 있지만, 하루 추가 판매량과 후보 순위는 참고 수준입니다.")
 
-st.subheader("메뉴 목록")
+budget_col, capacity_col = st.columns(2)
+with budget_col:
+    experiment_budget = st.number_input("평가기간에 쓸 수 있는 도입 예산(원)", min_value=0.0,
+                                        value=float(saved_value("experiment_budget", 0)), key=prefix + ".budget")
+with capacity_col:
+    extra_minutes_capacity = st.number_input("판매 1건당 추가 작업 가능 시간(분)", min_value=0.0,
+                                             value=float(saved_value("extra_minutes_capacity", 0)), key=prefix + ".capacity")
+st.caption("지역 진단이 실행 후보를 정하고, 예산과 작업 여력은 실행 가능성 경고에만 사용합니다.")
+
+st.subheader("2. 메뉴 목록")
+public_options = public_price_options()
+if public_options:
+    st.success(f"공개시장 가격을 직접 선택할 수 있는 품목이 {len(public_options)}개 있습니다.")
+else:
+    st.info("공개가격 수집 파일이 없어 현재는 직접 입력한 매입단가를 사용합니다.")
 menu_ids = st.session_state[ids_key]
 editing = st.session_state.get(editing_key)
 
@@ -139,7 +163,8 @@ if editing is None:
         st.rerun()
 else:
     menu_id = editing
-    source = st.radio("이 메뉴의 원가 입력 방식 *", list(PRICE_SOURCES), format_func=PRICE_SOURCES.get,
+    st.subheader("3. 메뉴 정보 입력")
+    source = st.radio("이 메뉴의 원가 입력 방식 *", ["unknown", "rate", "recipe"], format_func=PRICE_SOURCES.get,
                       horizontal=True, key=key(menu_id, "cost_source"))
     rate = None
     if source == "rate":
@@ -155,7 +180,8 @@ else:
         st.text_input("메뉴 이름 *", placeholder="예: 제육볶음 정식", key=key(menu_id, "name"))
         st.number_input("판매가(원) *", min_value=1.0, key=key(menu_id, "price"))
     with b:
-        st.number_input("최근 4주 하루 평균 판매량 *", min_value=0.0, placeholder="4주 총판매량 ÷ 실제 영업일", key=key(menu_id, "volume"))
+        st.number_input("최근 4주 하루 평균 판매량 · 선택", min_value=0.0, value=None,
+                        placeholder="모르면 비워두세요", key=key(menu_id, "volume"))
         has_packaging = st.checkbox("포장 판매를 함", key=key(menu_id, "has_packaging"))
         if has_packaging:
             st.number_input("판매 1건당 평균 포장비(원)", min_value=0.0, key=key(menu_id, "packaging"),
@@ -168,33 +194,66 @@ else:
         has_labor = st.checkbox("판매 1건마다 추가 인력이 듦", key=key(menu_id, "has_labor"))
         if has_labor:
             st.number_input("건당 변동 인건비(원)", min_value=0.0, key=key(menu_id, "labor"))
-    st.caption("레시피는 1인분/1건 기준입니다. 재료를 입력할 때는 재료명·사용량·단위·그 단위의 매입단가를 모두 입력하세요. 사용량과 매입단가의 단위는 같아야 합니다.")
+    st.caption("레시피는 1인분/1건 기준입니다. 사용량과 매입단가의 단위는 같아야 합니다. 낮음·높음 단가를 비우면 기준 단가를 그대로 사용합니다.")
     if st.button("+ 재료 추가", key=key(menu_id, "add-ingredient")):
         new_index = st.session_state[key(menu_id, "ingredient_count")]
-        for field, value in {"name": "", "quantity": 0.0, "unit": "g", "purchase": 0.0}.items():
+        for field, value in {"name": "", "quantity": 0.0, "unit": "g", "purchase": 0.0,
+                             "purchase_low": None, "purchase_high": None, "public_id": "",
+                             "price_mode": "direct"}.items():
             st.session_state[key(menu_id, f"ingredient.{new_index}.{field}")] = value
         st.session_state[key(menu_id, "ingredient_count")] = new_index + 1
         st.rerun()
     for index in range(st.session_state[key(menu_id, "ingredient_count")]):
-        x, y, z, w, remove = st.columns([3, 2, 2, 3, 1])
+        st.markdown(f"**재료 {index + 1}**")
+        x, y, z, remove = st.columns([3, 2, 2, 1])
         with x:
             st.text_input("재료명" + ingredient_label, key=key(menu_id, f"ingredient.{index}.name"))
         with y:
             st.number_input("사용량" + ingredient_label, min_value=0.0, key=key(menu_id, f"ingredient.{index}.quantity"))
         with z:
             st.text_input("단위" + ingredient_label, key=key(menu_id, f"ingredient.{index}.unit"))
-        with w:
-            st.number_input("그 단위의 매입단가(원)" + ingredient_label, min_value=0.0, key=key(menu_id, f"ingredient.{index}.purchase"))
         with remove:
             st.write("")
             if st.button("×", key=key(menu_id, f"ingredient.{index}.remove")):
                 # Shift later rows up, then shorten the visible recipe list.
                 count = st.session_state[key(menu_id, "ingredient_count")]
                 for later in range(index + 1, count):
-                    for field in ("name", "quantity", "unit", "purchase"):
+                    for field in ("name", "quantity", "unit", "purchase", "purchase_low", "purchase_high", "public_id", "price_mode"):
                         st.session_state[key(menu_id, f"ingredient.{later - 1}.{field}")] = st.session_state.get(key(menu_id, f"ingredient.{later}.{field}"), "" if field in {"name", "unit"} else 0)
                 st.session_state[key(menu_id, "ingredient_count")] -= 1
                 st.rerun()
+        if source in {"recipe", "actual"}:
+            price_mode = st.radio(
+                "가격은 어디에서 가져올까요?",
+                ["direct", "public"] if public_options else ["direct"],
+                format_func={"direct": "내 매입단가 직접 입력", "public": "공개시장 가격 참고"}.get,
+                horizontal=True, key=key(menu_id, f"ingredient.{index}.price_mode"),
+            )
+            if price_mode == "public":
+                public_id = st.selectbox(
+                    "같은 품종·등급·단위의 공개가격 품목을 선택하세요",
+                    ["", *public_options],
+                    format_func=lambda value: "품목을 선택하세요" if not value else public_options[value],
+                    key=key(menu_id, f"ingredient.{index}.public_id"),
+                )
+                if public_id:
+                    price = public_price_range(public_id)
+                    st.info(f"{price['name']} · {price['unit']}당 "
+                               f"낮음 {price['low']:,.0f}원 / 기준 {price['base']:,.0f}원 / 높음 {price['high']:,.0f}원 · "
+                               f"관측 {price['observed_days']}일\n\n실제 매입가격과 다를 수 있으며, 선택한 공개가격이 계산에 사용됩니다.")
+                else:
+                    st.warning("계산에 사용할 공개가격 품목을 선택해 주세요.")
+            else:
+                base, lo, hi = st.columns(3)
+                with base:
+                    st.number_input("기준 매입단가(원) *", min_value=0.0,
+                                    key=key(menu_id, f"ingredient.{index}.purchase"))
+                with lo:
+                    st.number_input("낮은 단가(원) · 선택", min_value=0.0, value=None,
+                                    key=key(menu_id, f"ingredient.{index}.purchase_low"))
+                with hi:
+                    st.number_input("높은 단가(원) · 선택", min_value=0.0, value=None,
+                                    key=key(menu_id, f"ingredient.{index}.purchase_high"))
     if st.button("메뉴 저장", type="primary", key=key(menu_id, "close")):
         st.session_state[editing_key] = None
         st.rerun()
@@ -205,7 +264,13 @@ def menu_payload(menu_id):
         ingredients.append({"name": st.session_state.get(key(menu_id, f"ingredient.{index}.name"), ""),
                             "quantity": st.session_state.get(key(menu_id, f"ingredient.{index}.quantity"), 0),
                             "unit": st.session_state.get(key(menu_id, f"ingredient.{index}.unit"), "g"),
-                            "purchase_price": st.session_state.get(key(menu_id, f"ingredient.{index}.purchase"), 0)})
+                            "purchase_price": st.session_state.get(key(menu_id, f"ingredient.{index}.purchase"), 0),
+                            "purchase_price_low": st.session_state.get(key(menu_id, f"ingredient.{index}.purchase_low")),
+                            "purchase_price_high": st.session_state.get(key(menu_id, f"ingredient.{index}.purchase_high")),
+                            "price_mode": st.session_state.get(key(menu_id, f"ingredient.{index}.price_mode"), "direct")})
+        mode = st.session_state.get(key(menu_id, f"ingredient.{index}.price_mode"), "direct")
+        ingredients[-1]["public_price_id"] = (st.session_state.get(
+            key(menu_id, f"ingredient.{index}.public_id"), "") if mode == "public" else "")
     return {"id": menu_id, "name": st.session_state.get(key(menu_id, "name"), ""),
             "price": st.session_state.get(key(menu_id, "price"), 10000),
             "daily_volume": st.session_state.get(key(menu_id, "volume"), None),
@@ -217,16 +282,17 @@ def menu_payload(menu_id):
             "ingredients": ingredients}
 
 st.divider()
-if st.button("가게 정보 저장하고 후보 순위 보기", type="primary", disabled=editing is not None, key=prefix + ".save"):
+if st.button("저장하고 실행안 비교하기", type="primary", disabled=editing is not None, key=prefix + ".save"):
     try:
-        profile = profile_from_form({"buz": buz, "goal": "sales", "menus": [menu_payload(menu_id) for menu_id in st.session_state[ids_key]],
+        profile = profile_from_form({"buz": buz, "menus": [menu_payload(menu_id) for menu_id in st.session_state[ids_key]],
                                      "operating_days": operating_days, "price_source": "unknown", "food_cost_rate": None,
-                                     "experiment_budget": 0, "extra_minutes_capacity": 0,
+                                     "experiment_budget": experiment_budget,
+                                     "extra_minutes_capacity": extra_minutes_capacity,
                                      "sales_volume_basis": sales_volume_basis})
         profiles[profile_key] = profile
         st.session_state["store_profile_selection"] = profile_key
-        st.success(f"메뉴 {len(profile.menus)}개를 저장했습니다. 이제 화면 1의 후보를 내 가게 기준으로 비교할 수 있습니다.")
-        st.page_link("pages/3_추천_손익_검증.py", label="추천 결과 보기 →")
+        st.success(f"메뉴 {len(profile.menus)}개를 저장했습니다. 이제 지역 진단 후보를 내 가게 기준으로 비교할 수 있습니다.")
+        st.page_link("pages/3_추천_손익_검증.py", label="실행안 비교 결과 보기 →")
     except ValueError as exc:
         st.error(str(exc))
 

@@ -1,12 +1,11 @@
 import pytest
 
-from src.store_profile import (profile_from_form, profile_to_simulator_form,
-                               recommendation_candidates, simulator_menus)
+from src.store_profile import profile_from_form, simulator_menus
 from src.screen2 import evaluate_profile_candidates
 
 
 def form(**changes):
-    base = {"buz": "8001", "goal": "sales", "menu_name": "대표 메뉴", "price": 10000,
+    base = {"buz": "8001", "menu_name": "대표 메뉴", "price": 10000,
             "daily_volume": 20, "operating_days": 24, "price_source": "rate",
             "food_cost_rate": .35, "experiment_budget": 300000, "extra_minutes_capacity": 1}
     return {**base, **changes}
@@ -29,20 +28,6 @@ def test_recipe_cost_mode_requires_a_recipe_for_every_menu():
         ]))
 
 
-def test_sales_candidates_explain_budget_constraint():
-    profile = profile_from_form(form(experiment_budget=0))
-    candidate = recommendation_candidates(profile)[0]
-    assert candidate["option_id"] == "visibility"
-    assert candidate["warning"]
-
-
-def test_profile_facts_are_mapped_to_simulator_without_inventing_volume():
-    profile = profile_from_form(form(daily_volume="", food_cost_rate=.4))
-    result = profile_to_simulator_form(profile, "rice_set")
-    assert result["rice_set.daily_volume"] == ""
-    assert result["rice_set.food_cost.base"] == 4000
-
-
 def test_multiple_menus_use_recipe_purchase_prices_for_food_cost():
     profile = profile_from_form(form(menus=[
         {"id": "a", "name": "A", "price": 10000, "daily_volume": 10,
@@ -53,6 +38,40 @@ def test_multiple_menus_use_recipe_purchase_prices_for_food_cost():
     menus = simulator_menus(profile)
     assert [m.name for m in menus] == ["A", "B"]
     assert menus[0].food_cost["base"] == 2400
+
+
+def test_menu_volume_can_be_unknown_and_recipe_range_is_not_forced_to_twenty_percent():
+    profile = profile_from_form(form(menus=[
+        {"id": "a", "name": "A", "price": 10000, "daily_volume": "", "cost_source": "recipe",
+         "ingredients": [{"name": "고기", "quantity": .2, "unit": "kg", "purchase_price": 12000,
+                          "purchase_price_low": 11000, "purchase_price_high": 15000}]},
+    ]))
+    menu = simulator_menus(profile)[0]
+    assert menu.daily_volume is None
+    assert menu.food_cost == {"low": 2200, "base": 2400, "high": 3000}
+
+
+def test_public_price_selection_overrides_manual_price_and_marks_provenance(monkeypatch):
+    monkeypatch.setattr("src.store_profile.public_price_range", lambda ingredient_id: {
+        "low": 2000, "base": 3000, "high": 4000, "unit": "kg", "name": "쌀",
+    })
+    profile = profile_from_form(form(menus=[
+        {"id": "a", "name": "A", "price": 10000, "daily_volume": 10, "cost_source": "recipe",
+         "ingredients": [{"name": "쌀", "quantity": .1, "unit": "kg", "purchase_price": 9999,
+                          "public_price_id": "rice"}]},
+    ]))
+    menu = simulator_menus(profile)[0]
+    assert menu.food_cost == {"low": 200, "base": 300, "high": 400}
+    assert menu.tags["food_cost.base"] == "추정값"
+
+
+def test_public_price_mode_requires_an_explicit_item():
+    with pytest.raises(ValueError, match="공개가격 품목을 선택"):
+        profile_from_form(form(menus=[
+            {"id": "a", "name": "A", "price": 10000, "daily_volume": 10, "cost_source": "recipe",
+             "ingredients": [{"name": "쌀", "quantity": .1, "unit": "kg", "purchase_price": 3000,
+                              "price_mode": "public", "public_price_id": ""}]},
+        ]))
 
 
 def test_each_menu_can_use_its_own_cost_source():

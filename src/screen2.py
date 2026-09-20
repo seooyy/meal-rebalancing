@@ -1,4 +1,4 @@
-"""B-owned Streamlit screen. C imports render_screen2; calculation stays UI independent."""
+"""손익 계산 API와 독립 실행형 입력 화면."""
 from __future__ import annotations
 
 import copy
@@ -320,6 +320,9 @@ def evaluate_profile_candidates(profile, target_menu_id: str, *, action_specs=No
             "daily_volume": menu.daily_volume, "packaging": menu.packaging,
             "fee_rate": menu.fee_rate, "variable_labor": menu.variable_labor,
             "food_cost": dict(menu.food_cost), "tags": dict(menu.tags),
+            "public_price_ingredients": [ingredient.name for source in profile.menus
+                                           if source.id == menu.id for ingredient in source.ingredients
+                                           if ingredient.public_price_id],
             "assumed_zero_fields": list(next(
                 (source.assumed_zero_fields for source in profile.menus if source.id == menu.id), ())),
         } for menu in menus],

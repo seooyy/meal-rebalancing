@@ -1,4 +1,4 @@
-"""화면 1 · 지역 진단 — C 소유. 2일차 오전~오후에 채운다."""
+"""1단계: 지역·업종 소비 진단."""
 
 import pandas as pd
 import streamlit as st
@@ -24,17 +24,18 @@ from ui.common import (
     region_metrics,
     selector,
     split_checks,
-    todo,
+    stepper,
     won,
     won_exact,
 )
 
-page_setup("화면 1 · 지역 진단")
+page_setup("1단계 · 지역 진단")
+stepper(1)
+st.caption("우리 지역의 결제 변화를 전국 흐름과 비교하고, 가게에서 확인할 실행안을 찾습니다.")
 
 region, buz, buz_nm = selector()
-st.caption(f"선택: {region} · {buz_nm}")
 
-st.subheader("지표")
+st.subheader("핵심 변화")
 
 m = region_metrics(region, buz)
 nat = baseline(buz)
@@ -68,7 +69,7 @@ else:
                f"기준 {MIN_CASES:,}건 이상")
 
     # 계약 6-5절. 이 표를 빼면 전국적 흐름을 지역 고유 문제로 오진한다.
-    st.markdown("**전국 기준선 병기**")
+    st.markdown("**전국과 비교**")
     if nat is None:
         st.warning("out/national_baseline_v1.csv 가 없어 전국 기준선을 병기하지 못한다. "
                    "기준선 없는 지역 수치는 단독으로 읽지 않는다.")
@@ -91,7 +92,8 @@ else:
                    "(일반한식 −1.78%, 서양음식 −6.39%).")
 
     # 집단별 분해 — GENDER_CD 기준. 법인은 소문자 x다 (계약 6-1절).
-    st.markdown("**집단별 분해**")
+    st.markdown("**고객 집단별 변화**")
+    st.caption("일반개인·외국인·법인의 변화와 전국 같은 집단의 흐름을 비교합니다.")
     g = region_metrics(region, buz, group_by="group")
     if not len(g):
         st.caption("집단별 관측이 없다.")
@@ -172,7 +174,7 @@ sim = load_csv("similar_regions.csv")
 feat = load_csv("match_features.csv")
 
 if not len(sim) or not len(feat):
-    todo("C", "out/similar_regions.csv · out/match_features.csv 생성 후 표시")
+    st.warning("유사 지역 산출물이 없어 비교를 표시할 수 없습니다.")
 else:
     cur = sim[(sim["region_key"] == region) & (sim["buz"].astype(str) == buz)]
     fv = feat[feat["buz"].astype(str) == buz].set_index("region_key")
@@ -236,15 +238,14 @@ else:
 - *소비 성격이 이례적이다* — 주민 구성은 닮았는데 소비 규모가 딴판인 지역.
   외부에서 유입된 소비로 보인다(강남구·종로구 서양음식 등)
 
-주민 1인당 소비로 환산하지 않는다. 카드 데이터의 지역이 가맹점 소재지인지
-고객 거주지인지 확인되지 않았기 때문이다.
+카드 결제 지역은 BC카드 관측 집계 기준으로 표시한다.
 """
         )
 
 st.subheader("판정과 실행 후보")
 st.caption("지역 진단은 손익을 계산하지 않습니다. 무엇을 먼저 확인할지와 검토할 후보만 보여주며, 후보는 처방이나 추천 순위가 아닙니다.")
 st.caption("여기까지는 **카드 집계만으로 낸 점검 방향**이다. 매장 가격·원가·판매량은 "
-           "아직 하나도 들어가지 않았다. 어느 것을 먼저 할지는 화면 2에서 정한다.")
+           "아직 하나도 들어가지 않았다. 어느 것을 먼저 할지는 다음 단계에서 정한다.")
 
 dg = diagnosis(region, buz)
 
@@ -337,22 +338,22 @@ else:
                 f'<div class="mr-card">'
                 f'<div class="mr-card-head">{머리}'
                 f'<span class="mr-card-num">{f"{범위} · " if 범위 else ""}{수치}</span></div>'
-                f'<div class="mr-card-check"><b>① 먼저 확인할 것</b> — 위에서부터 순서대로 본다. '
-                f'카드 데이터에는 왜 그랬는지가 없어서, 원인은 이 확인이 가른다.</div>'
+                 f'<div class="mr-card-check"><b>① 매장에서 먼저 확인할 것</b> — 위에서부터 순서대로 봅니다. '
+                 f'카드 데이터만으로는 원인을 알 수 없어 매장에서 확인이 필요합니다.</div>'
                 f'<ol class="mr-check-list">{"".join(checks)}</ol></div>',
                 unsafe_allow_html=True,
             )
             st.markdown(
                 f'<div class="mr-card mr-card-next">'
-                f'<div class="mr-card-check"><b>② 확인한 뒤 손익으로 비교할 후보</b>'
-                f'{f" · {대상}" if 대상 else ""} — 위 ①에서 짚인 쪽만 다음 화면의 손익 비교 대상으로 넘긴다.'
+                 f'<div class="mr-card-check"><b>② 확인 후 손익으로 비교할 실행안</b>'
+                 f'{f" · {대상}" if 대상 else ""} — 확인한 내용에 맞는 실행안만 다음 단계에서 비교합니다.'
                 # 멈춤 항목이 없는 카드(집단 후보 등)에 이 문장을 붙이면 거짓말이 된다.
                 f'{f" ①에서 {chr(183).join(멈춤항목)} 쪽이 원인이면 여기까지 오지 않는다." if 멈춤항목 else ""}</div>'
                 f'<ul class="mr-card-list">{items}</ul>{extra}</div>',
                 unsafe_allow_html=True,
             )
-        tail = ("후보에는 아직 순위가 없다. 가게 정보에 메뉴·원가·판매량을 입력한 뒤 "
-                "**후보 손익 순위**에서 이 후보들만 필요 판매 증가율 순으로 비교한다.")
+        tail = ("아직 실행안 순위는 없습니다. 가게 정보에 메뉴·원가·판매량을 입력한 뒤 "
+                "**실행안 비교**에서 필요한 판매 증가율을 비교합니다.")
         if len(cands) > 1:
             tail = "카드는 겨냥하는 대상별로 나뉜다. **금액 비중이 큰 쪽부터** 확인한다. " + tail
         st.caption(tail)
