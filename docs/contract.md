@@ -43,11 +43,11 @@ python -c "import sys,pandas,numpy,openpyxl;print(sys.version.split()[0],pandas.
 
 ```
 src/        코드          A: load.py, diagnose.py  B: simulator.py  C: similar_region.py
-config/     설정          contract.md(이 파일), rules.yaml, options.yaml, demo_store_*.yaml
+config/     설정          rules.yaml, options.yaml, demo_store_*.yaml
 tests/      테스트        B가 주로 사용
-out/        산출물 CSV    A가 주로 생성, C가 소비
 data/       원본 데이터   수정 금지
-plan/       계획 문서
+data/out/   가공 산출물   A가 주로 생성, C가 소비
+docs/       기획·계약 문서  project_idea.md, contract.md, plan/
 ```
 
 ---
@@ -61,11 +61,11 @@ plan/       계획 문서
 | `src/load.py` | **A** | B, C |
 | `src/diagnose.py` | **A** | C |
 | `config/rules.yaml` | **A** | C |
-| `out/codebook_v1.csv` | **A** | — |
-| `out/audit_v1.csv` | **A** | — |
-| `out/case_cells_v1.csv` | **A** | C |
-| `out/national_baseline_v1.csv` | **A** | C |
-| `out/region_group_metrics.csv` | **A** | C |
+| `data/out/codebook_v1.csv` | **A** | — |
+| `data/out/audit_v1.csv` | **A** | — |
+| `data/out/case_cells_v1.csv` | **A** | C |
+| `data/out/national_baseline_v1.csv` | **A** | C |
+| `data/out/region_group_metrics.csv` | **A** | C |
 | `src/simulator.py` | **B** | C |
 | `config/options.yaml` | **B** | C |
 | `config/demo_store_korean.yaml` | **B** | C |
@@ -73,8 +73,8 @@ plan/       계획 문서
 | `tests/test_simulator.py` | **B** | — |
 | `src/similar_region.py` | **C** | — |
 | `config/region_alias.csv` | **C** | — |
-| `out/population_2026m1.csv` | **C** | — |
-| `out/similar_regions.csv` | **C** | — |
+| `data/out/population_2026m1.csv` | **C** | — |
+| `data/out/similar_regions.csv` | **C** | — |
 | 화면 껍데기 (레이아웃·공통 CSS) | **C** | B |
 | 화면 2 컴포넌트 | **B** | — |
 
@@ -161,7 +161,7 @@ def age_cells(df, buz_list=None) -> pd.DataFrame:      # + 연령 2~6 = 2,550칸
 def load_rules(path="config/rules.yaml") -> dict
 ```
 
-**`out/region_group_metrics.csv` (2,040행 = 255지역 x 2업종 x 4행) — C가 읽는다**
+**`data/out/region_group_metrics.csv` (2,040행 = 255지역 x 2업종 x 4행) — C가 읽는다**
 
 | 열 | 내용 |
 | --- | --- |
@@ -175,7 +175,7 @@ def load_rules(path="config/rules.yaml") -> dict
 | `후보생성` | 우선순위·관측량 게이트 통과 여부. **화면은 이 열만 보고 후보 영역을 그린다** |
 | `방향`, `원인`, `라벨`, `우선순위`, `설명` | 셀 단위 판정. 같은 셀의 집단 4행에 동일하게 반복된다 |
 
-`out/region_age_metrics.csv` (2,550행)는 `group` 대신 `AGE_CD`(2~6)를 쓰고,
+`data/out/region_age_metrics.csv` (2,550행)는 `group` 대신 `AGE_CD`(2~6)를 쓰고,
 `금액기여도_pct`·판정 열 대신 **`제외비중_pct`** (코드 `1`+`x`의 B기간 금액 비중)를 담는다.
 **이 값을 화면에 반드시 표시한다** (6-3절).
 
@@ -409,7 +409,7 @@ git pull origin main
 
 ## 11. 미해결 정의 (주최 측 확인 대상)
 
-답변이 오면 이 문서와 `plan/00`을 함께 갱신한다.
+답변이 오면 이 문서와 `docs/plan/00`을 함께 갱신한다.
 
 1. `CCG_NM`이 가맹점 소재지인가 고객 거주지인가
 2. `GENDER_CD=3`(외국인)의 모집단 정의

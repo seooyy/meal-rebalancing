@@ -237,7 +237,7 @@ def test_분해잔차_208e16():
 
 
 def test_contract에는_267e16으로_적혀있음():
-    text = (PROJECT_ROOT / "config" / "contract.md").read_text(encoding="utf-8")
+    text = (PROJECT_ROOT / "docs" / "contract.md").read_text(encoding="utf-8")
     assert "2.67e-16" in text
     assert "allow_mixed_buz" not in text  # 시그니처에 새 인자가 빠져 있다는 주장
 
@@ -268,7 +268,7 @@ def test_sha256_031c3a5c():
 
 def test_민감파일_git_제외():
     root = str(PROJECT_ROOT)
-    for p in [".env", "data/ABP_CONTEST_DATA.csv", "plan/MY_A_작업순서.md",
+    for p in [".env", "data/ABP_CONTEST_DATA.csv", "docs/plan/MY_A_작업순서.md",
               "1. AI금융빅데이터플랫폼 소비데이터 활용 아이디어 경진대회 참가신청서류.pdf"]:
         r = subprocess.run(["git", "check-ignore", "-q", p], cwd=root)
         assert r.returncode == 0, f"ignore 안 됨: {p}"
@@ -328,7 +328,7 @@ def test_support_지역최소_집단칸최소_500미만():
 
 def test_plan01_기준선_잠정안_기록됨():
     """리뷰 시점에는 '검토 후 확정' 3칸이 비어 있었다. 잠정안 기록 후 상태를 확인한다."""
-    text = next((PROJECT_ROOT / "plan").glob("01_*.md")).read_text(encoding="utf-8")
+    text = next((PROJECT_ROOT / "docs" / "plan").glob("01_*.md")).read_text(encoding="utf-8")
     assert "검토 후 확정" not in text
     assert "A 잠정안" in text and "min(A기간 건수, B기간 건수) < 1,000" in text
 
@@ -358,9 +358,9 @@ def test_전체기준_실제값():
 
 
 def test_문서에_일반개인_수치가_적혀있음():
-    for path in [next((PROJECT_ROOT / "plan").glob("00_*.md")),
-                 PROJECT_ROOT / "config" / "contract.md",
-                 PROJECT_ROOT / "project_idea.md"]:
+    for path in [next((PROJECT_ROOT / "docs" / "plan").glob("00_*.md")),
+                 PROJECT_ROOT / "docs" / "contract.md",
+                 PROJECT_ROOT / "docs" / "project_idea.md"]:
         text = path.read_text(encoding="utf-8")
         assert "36,869" in text and "11,023" in text, path.name
 
@@ -381,7 +381,7 @@ def test_한식_건수초과분_IQR절반_538_서양_421():
 
 
 def test_plan02_IQR_근거값_서양건수는_84():
-    """plan/02 66행과 src/classify.py 26행 주석은 원래 서양음식 건수 IQR을 8.5로 적었다.
+    """docs/plan/02 66행과 src/classify.py 26행 주석은 원래 서양음식 건수 IQR을 8.5로 적었다.
 
     실측은 8.42다 (quantile 보간을 'higher'로 바꿔야 8.54가 나온다).
     리뷰에서 발견해 8.4로 고쳤다. 다시 틀어지지 않도록 문서와 주석도 확인한다.
@@ -389,7 +389,7 @@ def test_plan02_IQR_근거값_서양건수는_84():
     t = region_table()
     close(round(iqr(t[t["buz"] == BUZ_KOREAN]["cnt_ex"]), 1), 10.8, 1e-9)
     close(round(iqr(t[t["buz"] == BUZ_WESTERN]["cnt_ex"]), 2), 8.42, 1e-9)
-    assert "서양 8.4)" in next((PROJECT_ROOT / "plan").glob("02_*.md")).read_text(encoding="utf-8")
+    assert "서양 8.4)" in next((PROJECT_ROOT / "docs" / "plan").glob("02_*.md")).read_text(encoding="utf-8")
     assert "서양음식 8.4%p" in (PROJECT_ROOT / "src" / "classify.py").read_text(encoding="utf-8")
     close(round(iqr(t[t["buz"] == BUZ_KOREAN]["unit_ex"]), 1), 4.0, 1e-9)
     close(round(iqr(t[t["buz"] == BUZ_WESTERN]["unit_ex"]), 1), 3.6, 1e-9)

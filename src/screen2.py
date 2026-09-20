@@ -90,7 +90,7 @@ def evaluate_inputs(form=None, *, context=None, daily_rows=None):
             for ingredient, quantity in list(amounts.items()):
                 amounts[ingredient] = float(number(form.get(f"recipe.{menu_id}.{ingredient}", quantity), minimum=0))
         if daily_rows is None:
-            daily_path = ROOT / "out/price_daily.csv"
+            daily_path = ROOT / "data/out/price_daily.csv"
             daily_rows = read_daily(daily_path) if daily_path.exists() else []
         price_result = recipe_costs(recipe, daily_rows, read_mapping(), scenario=scenario,
                                    actual_prices=actual, changes=changes,

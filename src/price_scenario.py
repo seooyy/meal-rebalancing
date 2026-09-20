@@ -175,7 +175,7 @@ def industry_coverage(coverage, menus):
 def main():
     from src.collect_price import read_mapping
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--daily", type=Path, default=ROOT / "out/price_daily.csv")
+    parser.add_argument("--daily", type=Path, default=ROOT / "data/out/price_daily.csv")
     parser.add_argument("--out-dir", type=Path, default=ROOT / "out")
     parser.add_argument("--allow-assumptions", action="store_true", help="Explicit offline demo; never claims collected prices")
     parser.add_argument("--actual-prices", type=Path, help="JSON ingredient->price per recipe unit")

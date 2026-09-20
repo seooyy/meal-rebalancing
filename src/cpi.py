@@ -9,12 +9,12 @@
 
 기간은 카드 데이터와 맞춘다. A = 2026.01~03 평균, B = 2026.04~06 평균.
 지역은 전국이다. 시도별을 받아도 시군구를 대표하지 못하므로 "외식 물가가 오르는
-국면인가"라는 방향 판단에만 쓴다 (plan/06 "지역을 전국으로 결정한 이유").
+국면인가"라는 방향 판단에만 쓴다 (docs/plan/06 "지역을 전국으로 결정한 이유").
 
-⚠️ plan/06의 물가 표와 값이 다르다. 그 표는 폐기된 이전 파일(2026.03~08)로
+⚠️ docs/plan/06의 물가 표와 값이 다르다. 그 표는 폐기된 이전 파일(2026.03~08)로
 계산된 것으로 보이며, 이 저장소의 파일로는 어떤 기간 정의로도 재현되지 않는다.
-특히 피자는 6개월 내내 지수가 119.68로 고정(+0.00%)인데 plan/06은 +1.40%로 적는다.
-self_check()가 그 차이를 경고로 출력한다. 팀 합의 전까지 plan/06은 고치지 않는다.
+특히 피자는 6개월 내내 지수가 119.68로 고정(+0.00%)인데 docs/plan/06은 +1.40%로 적는다.
+self_check()가 그 차이를 경고로 출력한다. 팀 합의 전까지 docs/plan/06은 고치지 않는다.
 
 터미널 검증:
     python -m src.cpi
@@ -28,7 +28,7 @@ import pandas as pd
 
 CPI_XLSX = "data/품목별_소비자물가지수_품목성질별_2020100__20260916133542.xlsx"
 CPI_SHEET = "데이터"
-OUT_CSV = "out/cpi_dineout.csv"
+OUT_CSV = "data/out/cpi_dineout.csv"
 
 BUZ_KOREAN, BUZ_WESTERN = "8001", "8006"
 
@@ -36,14 +36,14 @@ MONTHS_A = ["2026.01", "2026.02", "2026.03"]
 MONTHS_B = ["2026.04", "2026.05", "2026.06"]
 MONTHS = MONTHS_A + MONTHS_B
 
-# 품목 선택은 plan/06의 팀 결정을 그대로 유지한다. 값만 원본에서 다시 계산한다.
+# 품목 선택은 docs/plan/06의 팀 결정을 그대로 유지한다. 값만 원본에서 다시 계산한다.
 ITEMS = {
     BUZ_KOREAN: ("일반한식", ["김치찌개백반", "비빔밥", "냉면", "삼겹살(외식)"]),
     BUZ_WESTERN: ("서양음식", ["스파게티", "피자", "햄버거", "돈가스", "치킨"]),
 }
 REFERENCE_ITEM = "외식"  # 대분류. 업종 적용에는 쓰지 않고 참고로만 담는다
 
-# plan/06 기재값. 재현되지 않는다는 사실을 드러내기 위해서만 들고 있다.
+# docs/plan/06 기재값. 재현되지 않는다는 사실을 드러내기 위해서만 들고 있다.
 PLAN06_CLAIMED = {BUZ_KOREAN: 0.88, BUZ_WESTERN: 0.97}
 
 
@@ -122,7 +122,7 @@ def buz_change(buz: str, path: str = OUT_CSV) -> float | None:
 
 
 def self_check() -> bool:
-    """원본 정합성을 확인하고 plan/06과의 차이를 드러낸다."""
+    """원본 정합성을 확인하고 docs/plan/06과의 차이를 드러낸다."""
     ok = True
 
     def chk(label: str, cond: bool, detail: str = "") -> None:
@@ -152,12 +152,12 @@ def self_check() -> bool:
         print(f"  INFO  {buz_nm}({buz}) {v:+.4f}%   [{detail}]")
         chk(f"{buz_nm} 변화율이 유한값", pd.notna(v))
 
-    print("\n[4] plan/06 기재값과의 차이 — 경고이며 실패가 아니다")
+    print("\n[4] docs/plan/06 기재값과의 차이 — 경고이며 실패가 아니다")
     for buz, claimed in PLAN06_CLAIMED.items():
         got = float(out[(out.buz == buz) & (out["수준"] == "업종")].iloc[0]["chg_pct"])
         gap = got - claimed
         mark = "일치" if abs(gap) < 0.005 else f"차이 {gap:+.2f}%p"
-        print(f"  WARN  {ITEMS[buz][0]}: 재계산 {got:+.2f}% vs plan/06 {claimed:+.2f}%  ({mark})")
+        print(f"  WARN  {ITEMS[buz][0]}: 재계산 {got:+.2f}% vs docs/plan/06 {claimed:+.2f}%  ({mark})")
     flat = [t.품목 for t in out[out["수준"] == "품목"].itertuples() if abs(t.chg_pct) < 1e-9]
     if flat:
         print(f"  WARN  지수가 6개월 내내 고정된 품목: {', '.join(flat)} "

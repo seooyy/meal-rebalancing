@@ -1,12 +1,12 @@
 """STEP 3~6 산출물을 한 번에 생성한다.
 
 생성 파일:
-  out/codebook_v1.csv          STEP 3  코드 정의 확정본
-  out/audit_v1.csv             STEP 4  월별 관측 범위 감사
-  out/support_v1.csv           STEP 4  조합별 관측량 분포 (기준선 결정 근거)
-  out/case_cells_v1.csv        STEP 5  4셀 × 집단별 사례 집계
-  out/national_baseline_v1.csv STEP 6  업종별 전국 기준선
-  out/manifest_v1.json                 재현용 메타데이터
+  data/out/codebook_v1.csv          STEP 3  코드 정의 확정본
+  data/out/audit_v1.csv             STEP 4  월별 관측 범위 감사
+  data/out/support_v1.csv           STEP 4  조합별 관측량 분포 (기준선 결정 근거)
+  data/out/case_cells_v1.csv        STEP 5  4셀 × 집단별 사례 집계
+  data/out/national_baseline_v1.csv STEP 6  업종별 전국 기준선
+  data/out/manifest_v1.json                 재현용 메타데이터
 
 실행:
     python -m src.build_outputs
@@ -49,7 +49,7 @@ from src.load import (
 )
 from src.classify import AMT_BAND, CNT_BAND, UNIT_BAND, classify_row
 
-OUT_DIR = PROJECT_ROOT / "out"
+OUT_DIR = PROJECT_ROOT / "data" / "out"
 
 # 사례 4셀: (시도, 시군구, 업종코드, 라벨)
 CASE_DEFS = [
@@ -316,7 +316,7 @@ def build_manifest(df: pd.DataFrame, written: dict[str, int]) -> dict:
 # ---------------------------------------------------------------------------
 
 def main() -> int:
-    OUT_DIR.mkdir(exist_ok=True)
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
     print("카드 데이터 로드 중...")
     df = load_card()
     print(f"  {len(df):,}행, {df['region_key'].nunique()}개 지역\n")

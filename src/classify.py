@@ -12,7 +12,7 @@
   1층 방향 : 일평균 결제금액이 늘었나 줄었나 (절대 변화)
   2층 원인 : 건수와 건당금액 중 무엇이 전국보다 부진한가 (전국 대비 초과분)
 
-계약: config/contract.md, plan/02_지역_소비집단_진단.md
+계약: docs/contract.md, docs/plan/02_지역_소비집단_진단.md
 """
 
 from __future__ import annotations

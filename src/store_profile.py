@@ -29,7 +29,7 @@ def public_price_options() -> dict[str, str]:
     """Collected public-price choices. Empty means no complete collection exists."""
     from src.collect_price import ROOT, read_mapping
 
-    if not (ROOT / "out/price_daily.csv").exists():
+    if not (ROOT / "data/out/price_daily.csv").exists():
         return {}
     return {row["ingredient_id"]: f'{row["name"]} ({row["recipe_unit"]})'
             for row in read_mapping() if public_price_range(row["ingredient_id"]) is not None}
@@ -40,7 +40,7 @@ def public_price_range(ingredient_id: str) -> dict | None:
     from src.collect_price import ROOT, read_mapping
     from src.price_scenario import price_series, read_daily
 
-    path = ROOT / "out/price_daily.csv"
+    path = ROOT / "data/out/price_daily.csv"
     mapping = next((row for row in read_mapping() if row["ingredient_id"] == ingredient_id), None)
     if mapping is None or not path.exists():
         return None
