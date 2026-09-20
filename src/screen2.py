@@ -250,7 +250,7 @@ def render_screen2(*, buz=None, context=None, key="screen2", daily_rows=None):
     if context:
         st.caption("지역 진단 참고 — 판매량 예측에 사용하지 않습니다.")
         st.write(context)
-        st.caption("BC카드 관측 집계 기준")
+        st.caption("지역 소비 지표는 BC카드 결제 데이터를 집계한 결과입니다.")
         st.caption("5월 결제금액이 전국 평균 대비 약 +11%로 높음 — 계절 요인 포함")
     rows = result["results"]
     st.dataframe([{
