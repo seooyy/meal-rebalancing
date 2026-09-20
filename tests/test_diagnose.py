@@ -2,7 +2,7 @@
 
 이 파일이 지키는 것은 두 가지다.
 
-  1. 4셀이 문서(plan/01, plan/02)와 같은 판정·후보를 낸다
+  1. 4셀이 문서(docs/plan/01, docs/plan/02)와 같은 판정·후보를 낸다
   2. **게이트 3개가 실제로 무언가를 막고 있다**
 
 2번을 위해 게이트를 끈 상태와 켠 상태를 둘 다 돌린다. 게이트를 켠 결과만
@@ -37,7 +37,7 @@ from src.diagnose import (
 from src.load import BUZ_KOREAN, BUZ_WESTERN, DAYS_B, aggregate, load_card
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT_DIR = ROOT / "out"
+OUT_DIR = ROOT / "data" / "out"
 
 MICHUHOL = ("미추홀구", "인천광역시")
 ICHEON = ("이천시", "경기도")
@@ -87,7 +87,7 @@ def targets(result) -> list[str]:
 
 
 # ===========================================================================
-# 1. 4셀 판정 — plan/02 "4셀 판정 결과 (회귀 테스트)"
+# 1. 4셀 판정 — docs/plan/02 "4셀 판정 결과 (회귀 테스트)"
 # ===========================================================================
 
 CASES = [
@@ -165,7 +165,7 @@ def test_이천시_한식은_후보가_비고_참고_한줄만_남는다():
 
 
 def test_미추홀구_서양음식은_후보도_참고도_없다():
-    """우선순위 '없음'은 참고 한 줄도 내보내지 않는다 (plan/02 표시 규칙)."""
+    """우선순위 '없음'은 참고 한 줄도 내보내지 않는다 (docs/plan/02 표시 규칙)."""
     r = dx(MICHUHOL, BUZ_WESTERN)
     assert r["실행후보"] == []
     assert r["참고"] is None
@@ -203,7 +203,7 @@ def test_낮음은_후보를_비우되_판정은_남긴다():
 
 
 def test_후보생성_지역수_23_21():
-    """'낮음'까지 포함하면 74/56곳으로 늘어난다 (plan/02 근거)."""
+    """'낮음'까지 포함하면 74/56곳으로 늘어난다 (docs/plan/02 근거)."""
     n = cells().groupby("buz")["후보생성"].sum().to_dict()
     assert n[BUZ_KOREAN] == 23 and n[BUZ_WESTERN] == 21
 
@@ -228,7 +228,7 @@ def test_법인_후보는_4셀_전부에서_걸러진다():
 
 
 def test_게이트를_모두_끄면_법인이_4셀_전부에_뜬다():
-    """plan/02가 경고하는 바로 그 상황을 재현한다.
+    """docs/plan/02가 경고하는 바로 그 상황을 재현한다.
 
     4셀 법인은 +9.87 ~ +22.04%로 전부 규칙에 걸린다. 게이트가 없으면
     "법인 수요 증가 -> 예약 구성 도입"이 네 지역 전부에서 후보가 된다.
@@ -280,7 +280,7 @@ def test_감소한_집단은_규칙_자체가_안_걸린다():
 
 
 def test_통과한_후보에는_비중과_초과분이_병기된다():
-    """plan/02: 모든 후보에 B기간 비중과 전국 대비 초과분을 반드시 함께 표시."""
+    """docs/plan/02: 모든 후보에 B기간 비중과 전국 대비 초과분을 반드시 함께 표시."""
     off = relaxed(min_priority="없음", min_share_pct=0.0,
                   national_excess_band_pct=-999.0)
     for cell, buz, *_ in CASES:
@@ -341,14 +341,14 @@ def test_현재_데이터에는_판정불가_칸이_없다():
 
 
 def test_이천시_서양음식_건당초과분_순위():
-    """plan/00·01·02의 '하위 1%'는 과장이었다. 실측은 255곳 중 4번째다."""
+    """docs/plan/00·01·02의 '하위 1%'는 과장이었다. 실측은 255곳 중 4번째다."""
     w = cells()[cells()["buz"] == BUZ_WESTERN].sort_values("unit_excess_pp")
     rank = list(w["region_key"]).index("경기도 이천시") + 1
     assert rank == 4
     assert rank / len(w) * 100 == pytest.approx(1.57, abs=0.01)
     for name in ["00_개요와_공통규칙.md", "01_데이터정의와_사례집계_확정.md",
                  "02_지역_소비집단_진단.md"]:
-        text = (ROOT / "plan" / name).read_text(encoding="utf-8")
+        text = (ROOT / "docs" / "plan" / name).read_text(encoding="utf-8")
         assert "하위 1%" not in text, name
 
 
@@ -487,7 +487,7 @@ def test_금지어가_산출_텍스트에_없다():
 
 
 def test_1인당_소비_환산이_없다():
-    """plan/00 금지 항목. 카드 데이터에는 결제자 수가 없다."""
+    """docs/plan/00 금지 항목. 카드 데이터에는 결제자 수가 없다."""
     src = (ROOT / "src" / "diagnose.py").read_text(encoding="utf-8")
     yml = (ROOT / "config" / "rules.yaml").read_text(encoding="utf-8")
     # rules.yaml의 banned_phrases에 '1인당'이 적혀 있는 것은 정상이다

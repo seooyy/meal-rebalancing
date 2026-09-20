@@ -110,8 +110,8 @@ def footer() -> None:
 
 @st.cache_data(show_spinner=False)
 def load_csv(name: str) -> pd.DataFrame:
-    """out/ 의 CSV를 읽는다. 없으면 빈 DataFrame."""
-    p = ROOT / "out" / name
+    """data/out/ 의 CSV를 읽는다. 없으면 빈 DataFrame."""
+    p = ROOT / "data" / "out" / name
     if not p.exists():
         return pd.DataFrame()
     return pd.read_csv(p, encoding="utf-8-sig")
@@ -312,7 +312,7 @@ def split_checks(text: str) -> list[str]:
 
 @st.cache_data(show_spinner=False)
 def cpi_change(buz: str) -> float | None:
-    """업종별 외식 물가 변화율 %. out/cpi_dineout.csv 가 없으면 None.
+    """업종별 외식 물가 변화율 %. data/out/cpi_dineout.csv 가 없으면 None.
 
     None이면 화면은 물가 섹션을 조용히 접는다. 참고 지표라서 없다고 해서
     나머지 화면이 막히면 안 된다.

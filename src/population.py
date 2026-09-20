@@ -16,9 +16,9 @@ import pandas as pd
 
 POP_XLSX = "data/202601_202606_연령별인구현황_월간.xlsx"
 POP_SHEET = "연령별인구현황"
-REGION_KEYS = "out/region_keys.csv"
+REGION_KEYS = "data/out/region_keys.csv"
 ALIAS_CSV = "config/region_alias.csv"
-OUT_CSV = "out/population_2026m1.csv"
+OUT_CSV = "data/out/population_2026m1.csv"
 
 DEFAULT_MONTH = "2026년01월"
 # 기준월에 아직 인구가 잡히지 않는 지역을 메울 때 훑는 순서.
@@ -141,7 +141,7 @@ def match_regions(pop: pd.DataFrame, region_keys: pd.DataFrame,
 
 
 def build(month: str = DEFAULT_MONTH, out_path: str = OUT_CSV) -> pd.DataFrame:
-    """out/population_2026m1.csv 생성."""
+    """data/out/population_2026m1.csv 생성."""
     pop = load_population_raw(month=month)
     rk = pd.read_csv(REGION_KEYS, encoding="utf-8-sig", dtype=str)
     alias = None

@@ -8,7 +8,7 @@ pandas.read_csv를 직접 쓰면 아래 실수가 조용히 발생한다.
   - 일반한식과 서양음식을 합산 -> 업종 구성비 변화가 객단가 변화로 둔갑
   - 기간 일수(90/91) 대신 월 수(3)로 나눔
 
-계약: config/contract.md 4·5·6절
+계약: docs/contract.md 4·5·6절
 """
 
 from __future__ import annotations
@@ -19,7 +19,7 @@ import numpy as np
 import pandas as pd
 
 # ---------------------------------------------------------------------------
-# 공통 상수 (config/contract.md 5절)
+# 공통 상수 (docs/contract.md 5절)
 # ---------------------------------------------------------------------------
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -231,7 +231,7 @@ def aggregate(
     -----
     업종을 필수로 둔 이유: 일반한식 36,869원과 서양음식 11,023원은 건당
     결제금액이 3배 이상 차이 난다. 합산하면 업종 구성비 변화가 객단가
-    변화로 나타나 진단이 틀린다. (config/contract.md 6-2절)
+    변화로 나타나 진단이 틀린다. (docs/contract.md 6-2절)
 
     시도 확인이 필요한 이유: '중구'는 서울·부산·대구·인천·대전·울산 6곳에
     있다. sido 없이 region='중구'로 부르면 6개가 조용히 합산된다.
@@ -393,7 +393,7 @@ NATIONAL_EXPECTED = [
 
 
 def self_check(df: pd.DataFrame | None = None) -> bool:
-    """config/contract.md 7절의 기준값과 대조한다.
+    """docs/contract.md 7절의 기준값과 대조한다.
 
     터미널에서:  python -m src.load
     """

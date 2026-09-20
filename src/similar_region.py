@@ -24,9 +24,9 @@ import pandas as pd
 
 from src.load import BUZ_KOREAN, BUZ_WESTERN, aggregate, load_card
 
-POP_CSV = "out/population_2026m1.csv"
-OUT_CSV = "out/similar_regions.csv"
-FEAT_CSV = "out/match_features.csv"
+POP_CSV = "data/out/population_2026m1.csv"
+OUT_CSV = "data/out/similar_regions.csv"
+FEAT_CSV = "data/out/match_features.csv"
 
 BUZ_NAME = {BUZ_KOREAN: "일반한식", BUZ_WESTERN: "서양음식"}
 
@@ -185,7 +185,7 @@ def find_similar(region: str, buz: str, k: int = K_DEFAULT, *, sido: str | None 
 
 
 def build(k: int = K_DEFAULT, out_path: str = OUT_CSV, df=None) -> pd.DataFrame:
-    """255지역 × 2업종 × k곳을 out/similar_regions.csv로 저장."""
+    """255지역 × 2업종 × k곳을 data/out/similar_regions.csv로 저장."""
     if df is None:
         df = load_card()
     frames = []

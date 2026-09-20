@@ -15,7 +15,7 @@
 1순위 후보로 뜬다. 전국 법인이 +46.41%(한식) / +34.75%(서양음식)라 지역
 법인은 오히려 전국보다 **느리게** 늘었는데도 그렇다.
 
-계약: config/contract.md, plan/02_지역_소비집단_진단.md
+계약: docs/contract.md, docs/plan/02_지역_소비집단_진단.md
 터미널: python -m src.diagnose
 """
 
@@ -39,7 +39,7 @@ from .load import (
 
 ROOT = Path(__file__).resolve().parent.parent
 RULES_PATH = ROOT / "config" / "rules.yaml"
-OUT_DIR = ROOT / "out"
+OUT_DIR = ROOT / "data" / "out"
 
 # 우선순위 게이트는 대소 비교가 필요하다. 문자열 비교로는 '중간' < '높음'이
 # 성립하지 않으므로 순서를 명시한다.
@@ -462,7 +462,7 @@ def diagnose(
 # ---------------------------------------------------------------------------
 
 def build_region_group_metrics(df: pd.DataFrame) -> pd.DataFrame:
-    """out/region_group_metrics.csv — 255지역 x 2업종 x (전체 + 3집단).
+    """data/out/region_group_metrics.csv — 255지역 x 2업종 x (전체 + 3집단).
 
     전체 행을 `group='전체'`로 함께 넣는다. C가 셀 판정과 집단 지표를 한
     파일에서 읽어야 화면에서 둘을 맞물려 보여줄 수 있다. 판정 열은 셀 단위
@@ -506,7 +506,7 @@ def build_region_group_metrics(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def build_region_age_metrics(df: pd.DataFrame) -> pd.DataFrame:
-    """out/region_age_metrics.csv — 255지역 x 2업종 x 연령 2~6."""
+    """data/out/region_age_metrics.csv — 255지역 x 2업종 x 연령 2~6."""
     a = age_cells(df)
     cols = (
         ["region_key", "buz", "AGE_CD"]
@@ -583,7 +583,7 @@ def self_check(df: pd.DataFrame | None = None) -> bool:
 
 
 def _write(frame: pd.DataFrame, name: str) -> None:
-    OUT_DIR.mkdir(exist_ok=True)
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
     frame.to_csv(OUT_DIR / name, index=False, encoding="utf-8-sig")
     print(f"  {name:<28} {len(frame):>7,}행  {len(frame.columns):>2}열")
 

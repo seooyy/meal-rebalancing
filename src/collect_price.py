@@ -242,7 +242,7 @@ def main():
     parser.add_argument("--start", type=date.fromisoformat, default=date(2026, 1, 1))
     parser.add_argument("--end", type=date.fromisoformat, default=date(2026, 6, 30))
     parser.add_argument("--raw-dir", type=Path, default=ROOT / "data/price_raw")
-    parser.add_argument("--out-dir", type=Path, default=ROOT / "out")
+    parser.add_argument("--out-dir", type=Path, default=ROOT / "data/out")
     args = parser.parse_args()
     load_dotenv(ROOT / ".env", override=False)
     try:
