@@ -8,7 +8,7 @@ from __future__ import annotations
 import pytest
 
 from src.screen2 import evaluate_inputs
-from ui.recommend import load_policy, rank, rows_for_all, shortlist
+from ui.recommend import action_specs, load_policy, rank, rows_for_all, shortlist
 
 
 @pytest.fixture(scope="module")
@@ -86,6 +86,14 @@ def test_표에_없는_후보는_조용히_버리지_않는다():
     picked = shortlist(diagnosis("객단가", ["메뉴 구성 조정", "A가 새로 만든 후보"]))
     assert picked["unknown"] == ["A가 새로 만든 후보"]
     assert set(picked["kinds"]) == {"구성 재설계"}
+
+
+def test_진단_후보는_구체_실행안으로_바뀐다():
+    actions = action_specs(diagnosis("객단가", ["메뉴 구성 조정", "상위 옵션 노출"]))
+    assert [action["title"] for action in actions] == [
+        "기본 구성·양·사이드 조합 다시 정하기", "추가 토핑·곱빼기 같은 상위 옵션 보이게 하기",
+    ]
+    assert all(action["action"] and action["measure"] and action["precheck"] for action in actions)
 
 
 # ---- 2단계 ------------------------------------------------------------------
