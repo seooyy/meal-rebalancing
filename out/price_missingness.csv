@@ -1,0 +1,10 @@
+﻿ingredient_id,expected_calendar_days,observed_days,missing_rate
+rice,181,120,0.3370165745856354
+cabbage,181,0,1.0
+radish,181,110,0.39226519337016574
+onion,181,120,0.3370165745856354
+green_onion,181,120,0.3370165745856354
+garlic,181,0,1.0
+pork,181,0,1.0
+egg,181,0,1.0
+tomato,181,120,0.3370165745856354
