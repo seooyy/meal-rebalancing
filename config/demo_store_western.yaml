@@ -9,7 +9,7 @@
   "operating_days": 24,
   "average_people_per_payment": 1,
   "reference_card_amount": 10630,
-  "reference_note": "BC카드 관측 집계 기준. 결제 건당금액은 1인 메뉴 가격이 아닙니다.",
+  "reference_note": "지역 소비 지표는 BC카드 결제 데이터를 집계한 결과입니다. 결제 건당금액은 1인 메뉴 가격이 아닙니다.",
   "tags": {
     "period_weeks": "가정값",
     "operating_days": "가정값",

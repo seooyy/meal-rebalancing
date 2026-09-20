@@ -12,10 +12,7 @@ ROOT = Path(__file__).resolve().parent.parent
 BUZ_KOREAN, BUZ_WESTERN = "8001", "8006"
 BUZ_OPTIONS = {"일반한식": BUZ_KOREAN, "서양음식": BUZ_WESTERN}
 
-# 계약 10절. 화면에 반드시 남는 문구다. 지우지 않는다.
-NOTE_SOURCE = "BC카드 관측 집계 기준"
-NOTE_VOLUME = "필요 판매량은 달성 조건이며 판매 예측이 아니다"
-BADGE_DEMO = "가상 사례"
+NOTE_SOURCE = "지역 소비 지표는 BC카드 결제 데이터를 집계한 결과입니다."
 
 CSS = """
 <style>
@@ -34,19 +31,6 @@ CSS = """
   .mr-context { display:flex; gap:.5rem; flex-wrap:wrap; margin:-.25rem 0 1rem; }
   .mr-context span { padding:.22rem .55rem; border-radius:5px;
       background:rgba(127,127,127,.10); font-size:.8rem; }
-  .mr-badge {
-      display: inline-block; padding: .12rem .5rem; border-radius: 999px;
-      font-size: .74rem; font-weight: 600; letter-spacing: .01em;
-      background: rgba(217,119,6,.16); color: #b45309; border: 1px solid rgba(217,119,6,.35);
-  }
-  .mr-tag {
-      display: inline-block; padding: .08rem .42rem; border-radius: 3px;
-      font-size: .72rem; margin-left: .3rem; border: 1px solid rgba(127,127,127,.4);
-  }
-  .mr-todo {
-      border: 1px dashed rgba(127,127,127,.5); border-radius: 6px;
-      padding: 1.1rem; text-align: center; color: rgba(127,127,127,.95); font-size: .88rem;
-  }
   .mr-verdict {
       background: rgba(127,127,127,.07); border-left: 3px solid rgba(127,127,127,.45);
       border-radius: 4px; padding: .65rem .9rem; margin: .4rem 0 .9rem;
@@ -69,7 +53,7 @@ CSS = """
       align-items: baseline; justify-content: space-between;
   }
   .mr-card-num { font-size: .78rem; opacity: .75; }
-  .mr-card-check { font-size: .84rem; margin: .5rem 0 .25rem; opacity: .9; }
+  .mr-card-desc { font-size: .84rem; margin: .5rem 0 .25rem; opacity: .9; }
   .mr-card-list { margin: .2rem 0 0; padding-left: 1.15rem; font-size: .89rem; line-height: 1.65; }
   .mr-card-note { font-size: .8rem; margin-top: .5rem; opacity: .75; }
   .mr-check-list { margin: .35rem 0 .1rem; padding-left: 1.25rem; font-size: .86rem; line-height: 1.5; }
@@ -81,11 +65,7 @@ CSS = """
       background: rgba(127,127,127,.16); border: 1px solid rgba(127,127,127,.35);
   }
   .mr-check-see { display: block; opacity: .85; margin-top: .1rem; }
-  .mr-check-then { display: block; font-size: .82rem; opacity: .72; margin-top: .1rem; }
-  /* 후보 카드는 확인 카드에 딸린다. 들여쓰기와 점선으로 순서를 보인다. */
-  .mr-card-next { border-style: dashed; margin: .5rem 0; }
   @media (prefers-color-scheme: dark) {
-    .mr-badge { color: #fbbf24; }
     .mr-pri-high { color: #fca5a5; }
     .mr-pri-mid  { color: #fbbf24; }
     .mr-pri-low  { color: #9ca3af; }
@@ -96,7 +76,7 @@ CSS = """
 
 def page_setup(title: str) -> None:
     """모든 화면의 첫 줄에서 부른다. 페이지 설정 + CSS + 제목."""
-    st.set_page_config(page_title=f"{title} · 외식 소비 리밸런싱", layout="wide")
+    st.set_page_config(page_title=f"{title} | 외식 소비 리밸런싱", layout="wide")
     st.markdown(CSS, unsafe_allow_html=True)
     st.title(title)
 
@@ -106,7 +86,7 @@ def note(text: str) -> None:
 
 
 def stepper(current: int) -> None:
-    labels = ("지역 진단", "가게 정보", "실행안 비교")
+    labels = ("지역 진단", "가게 정보 입력", "손익 검증")
     items = []
     for index, label in enumerate(labels, 1):
         state = "mr-step-active" if index == current else "mr-step-done" if index < current else ""
@@ -116,17 +96,8 @@ def stepper(current: int) -> None:
 
 
 def context_bar(region: str, buz_name: str) -> None:
-    st.markdown(f'<div class="mr-context"><span>지역 · {region}</span>'
-                f'<span>업종 · {buz_name}</span></div>', unsafe_allow_html=True)
-
-
-def badge(text: str = BADGE_DEMO) -> str:
-    return f'<span class="mr-badge">{text}</span>'
-
-
-def tag(kind: str) -> str:
-    """관측값 / 추정값 / 가정값 태그. 계약상 모든 입력 필드에 붙는다."""
-    return f'<span class="mr-tag">{kind}</span>'
+    st.markdown(f'<div class="mr-context"><span>지역: {region}</span>'
+                f'<span>업종: {buz_name}</span></div>', unsafe_allow_html=True)
 
 
 def footer() -> None:
@@ -156,19 +127,19 @@ def region_keys() -> list[str]:
 
 
 def selector() -> tuple[str, str, str]:
-    """지역·업종 선택. 지역 진단과 가게 정보 단계가 같은 위젯을 쓴다.
+    """지역과 업종 선택. 지역 진단과 가게 정보 단계가 같은 위젯을 쓴다.
 
     반환: (region_key, buz_code, buz_name)
     지역은 반드시 region_key('시도 시군구')다. 시군구명만 쓰면 중구가 6곳 합쳐진다.
     """
     keys = region_keys()
-    c1, c2 = st.columns([3, 2])
-    with c1:
-        region = st.selectbox("지역", keys,
-                              index=keys.index("인천광역시 미추홀구") if "인천광역시 미추홀구" in keys else 0,
-                              key="sel_region")
-    with c2:
-        buz_nm = st.radio("업종", list(BUZ_OPTIONS), horizontal=True, key="sel_buz")
+    region = st.selectbox(
+        "지역",
+        keys,
+        index=keys.index("인천광역시 미추홀구") if "인천광역시 미추홀구" in keys else 0,
+        key="sel_region",
+    )
+    buz_nm = st.selectbox("업종", list(BUZ_OPTIONS), key="sel_buz")
     return region, BUZ_OPTIONS[buz_nm], buz_nm
 
 
@@ -230,21 +201,6 @@ def baseline(buz: str, group: str = "전체") -> pd.Series | None:
     return hit.iloc[0] if len(hit) else None
 
 
-@st.cache_data(show_spinner=False)
-def age_excluded_share(region_key: str, buz: str) -> float:
-    """AGE_CD 1(범위 미확인)·x(법인)의 금액 비중 %.
-
-    계약 6-3절: 전체 합계에는 포함하되 연령 비교에서는 빼고, 제외 비중을 화면에 표시한다.
-    """
-    sido, ccg = split_region(region_key)
-    d = card()
-    sub = d[(d["SIDO_NM"] == sido) & (d["CCG_NM"] == ccg) & (d["TP_BUZ_NO"] == buz)]
-    total = sub["amt"].sum()
-    if not total:
-        return float("nan")
-    return sub.loc[sub["AGE_CD"].isin(["1", "x"]), "amt"].sum() / total * 100
-
-
 # ---- 표시 형식 -------------------------------------------------------------
 
 def won(v: float) -> str:
@@ -275,19 +231,7 @@ def won_exact(v: float) -> str:
     return "—" if pd.isna(v) else f"{v:,.0f}원"
 
 
-# ---- 관측량 게이트 ---------------------------------------------------------
-#
-# 기준: min(A기간 건수, B기간 건수) < MIN_CASES 이면 변화율을 표시하지 않는다.
-# 근거는 A의 notebooks/A01_관측량_기준선.ipynb.
-#
-# **잠정안이다.** 노트북에 "팀 동기화 때 확정"으로 적혀 있다. 확정값이 달라지면
-# 아래 상수 하나만 고치면 화면 전체에 반영된다.
-#
-# 이 게이트가 무엇을 잡고 무엇을 못 잡는지:
-#   - 지역×업종 (255×2)      : 현재 걸리는 곳 0곳 (최소가 울릉군 서양음식 3,676건)
-#   - 지역×업종×집단 (1,530) : 107칸(7.0%)이 걸린다
-#   - 울릉군 서양음식의 +237%는 관측량이 아니라 계절성(3,676건→11,915건)이라
-#     이 게이트로 걸러지지 않는다. 별도 문제다.
+# 두 비교 기간 중 적은 결제건수가 이 값보다 작으면 변화율을 숨긴다.
 
 MIN_CASES = 1000
 NOTE_THIN = "관측량 부족"
