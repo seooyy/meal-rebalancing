@@ -1,0 +1,85 @@
+"""Rank screen-1 candidates by the saved store's profit conditions."""
+import streamlit as st
+
+from src.screen2 import evaluate_profile_candidates
+from ui.common import BUZ_OPTIONS, context_bar, diagnosis, footer, page_setup, stepper, won_exact
+from ui.recommend import action_specs, render as render_recommendation, shortlist
+
+page_setup("3단계 · 실험안 비교")
+stepper(3)
+profiles = st.session_state.get("store_profiles", {})
+st.caption("지역 진단에서 찾은 실행안을 같은 메뉴와 가게 조건에 놓고 비교합니다.")
+
+profile_key = st.session_state.get("store_profile_selection")
+profile = profiles.get(profile_key) if profile_key else None
+if profile is None or not isinstance(profile_key, tuple) or len(profile_key) != 2:
+    st.warning("먼저 가게 정보를 저장해 주세요.")
+    st.page_link("pages/2_가게_정보.py", label="가게 정보 입력하기 →")
+else:
+    region, buz = profile_key
+    buz_name = next((name for name, code in BUZ_OPTIONS.items() if code == buz), buz)
+    context_bar(region, buz_name)
+    dg = diagnosis(region, buz)
+    picked = shortlist(dg)
+    if picked["state"] != "filtered":
+        st.info("지역 진단에서 비교할 실행 후보가 만들어지지 않았습니다.")
+        for line in picked["notes"]:
+            st.caption(line)
+    else:
+        specs = action_specs(dg)
+        st.subheader("1. 적용할 메뉴")
+        target_menu_id = st.selectbox(
+            "어떤 메뉴에 적용할까요?", [menu.id for menu in profile.menus],
+            format_func=lambda menu_id: next(menu.name for menu in profile.menus if menu.id == menu_id),
+        )
+        selected = next(menu for menu in profile.menus if menu.id == target_menu_id)
+        cols = st.columns(4)
+        cols[0].metric("판매가격", won_exact(selected.price))
+        cols[1].metric("기준 재료비", won_exact(selected.unit_food_cost))
+        cols[2].metric("건당 공헌이익", won_exact(selected.unit_contribution))
+        cols[3].metric("하루 판매량", "미입력" if selected.daily_volume is None else f"{selected.daily_volume:,.0f}건")
+
+        st.subheader("2. 실행 조건")
+        st.caption("각 실행안을 펼쳐 실제로 적용할 가격과 비용을 입력하세요. 수정하면 아래 결과가 바로 바뀝니다.")
+        labels = {"price_delta": "판매가격 증감(원)", "food_cost_delta": "한 건당 재료비 증감(원)",
+                  "application_rate": "전체 주문 중 적용 비율(0~1)", "setup_cost": "4주 동안 드는 초기 비용(원)",
+                  "extra_minutes": "주문 한 건당 추가 시간(분)", "extra_labor_cost": "주문 한 건당 추가 인건비(원)"}
+        defaults = {"price_delta": 0.0, "food_cost_delta": 0.0, "application_rate": 1.0,
+                    "setup_cost": 0.0, "extra_minutes": 0.0, "extra_labor_cost": 0.0}
+        for spec in specs:
+            assumptions = dict(spec.get("assumptions", {}))
+            summary = (f"가격 {assumptions.get('price_delta', 0):+,.0f}원 · "
+                       f"재료비 {assumptions.get('food_cost_delta', 0):+,.0f}원 · "
+                       f"초기 비용 {assumptions.get('setup_cost', 0):,.0f}원")
+            with st.expander(f'{spec["title"]}  |  {summary}'):
+                st.write(spec["action"])
+                st.caption("실행 전 확인 · " + spec["precheck"])
+                cols = st.columns(3)
+                for index, field in enumerate(defaults):
+                    with cols[index % 3]:
+                        assumptions[field] = st.number_input(
+                            labels[field], value=float(assumptions.get(field, defaults[field])),
+                            min_value=0.0 if field not in {"price_delta", "food_cost_delta"} else None,
+                            max_value=1.0 if field == "application_rate" else None,
+                            key=f"assumption.{region}.{buz}.{spec['id']}.{field}",
+                        )
+                spec["assumptions"] = assumptions
+        result = evaluate_profile_candidates(
+            profile, target_menu_id, action_specs=specs,
+            context={"지역": region, "업종": buz_name, "입력 경로": "지역 진단 후보 + 가게 정보"},
+        )
+        st.subheader("3. 비교 결과")
+        render_recommendation(result, dg)
+        over_budget = [o["name"] for o in result["options"]
+                       if float(o.get("setup_cost", 0)) > profile.experiment_budget]
+        over_capacity = [o["name"] for o in result["options"]
+                         if float(o.get("extra_minutes", 0)) > profile.extra_minutes_capacity]
+        if over_budget:
+            st.warning("입력한 초기 비용 예산을 넘는 실행안: " + ", ".join(over_budget))
+        if over_capacity:
+            st.warning("입력한 주문당 추가 시간 여력을 넘는 실행안: " + ", ".join(over_capacity))
+        if profile.sales_volume_basis == "estimate":
+            st.warning("판매량이 대략값이므로 공헌이익과 하루 추가 판매량도 참고 수준입니다. 가능하면 최근 4주 POS·주문내역으로 바꿔 주세요.")
+        st.page_link("pages/2_가게_정보.py", label="가게 정보 수정하기 →")
+
+footer()

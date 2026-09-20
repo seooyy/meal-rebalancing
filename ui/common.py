@@ -1,11 +1,4 @@
-"""화면 공통 껍데기 — C 소유.
-
-레이아웃·CSS·고정 문구·데이터 로더를 여기 모은다.
-**화면 파일(pages/)에서 CSS나 고정 문구를 다시 쓰지 않는다.** 둘이 따로 고치면 어긋난다.
-
-B에게: 2일차에 `pages/2_손익_시뮬레이터.py` 안쪽만 채운다.
-이 파일과 `app.py`는 C가 소유한다. 바꿀 게 있으면 요청한다.
-"""
+"""공통 레이아웃, 문구, 데이터 로더와 표시 형식."""
 
 from __future__ import annotations
 
@@ -21,7 +14,6 @@ BUZ_OPTIONS = {"일반한식": BUZ_KOREAN, "서양음식": BUZ_WESTERN}
 
 # 계약 10절. 화면에 반드시 남는 문구다. 지우지 않는다.
 NOTE_SOURCE = "BC카드 관측 집계 기준"
-NOTE_SEASON = "5월 결제금액이 전국 평균 대비 약 +11%로 높음 — 계절 요인 포함"
 NOTE_VOLUME = "필요 판매량은 달성 조건이며 판매 예측이 아니다"
 BADGE_DEMO = "가상 사례"
 
@@ -33,6 +25,15 @@ CSS = """
       padding: .55rem .8rem; border-radius: 4px; font-size: .84rem;
       line-height: 1.5; margin: .35rem 0;
   }
+  .mr-steps { display:flex; gap:.45rem; margin:.1rem 0 1.15rem; flex-wrap:wrap; }
+  .mr-step { padding:.38rem .72rem; border-radius:999px; font-size:.82rem;
+      border:1px solid rgba(127,127,127,.3); opacity:.68; }
+  .mr-step-active { opacity:1; font-weight:700; border-color:#2563eb;
+      background:rgba(37,99,235,.12); }
+  .mr-step-done { opacity:1; background:rgba(22,163,74,.10); }
+  .mr-context { display:flex; gap:.5rem; flex-wrap:wrap; margin:-.25rem 0 1rem; }
+  .mr-context span { padding:.22rem .55rem; border-radius:5px;
+      background:rgba(127,127,127,.10); font-size:.8rem; }
   .mr-badge {
       display: inline-block; padding: .12rem .5rem; border-radius: 999px;
       font-size: .74rem; font-weight: 600; letter-spacing: .01em;
@@ -61,7 +62,7 @@ CSS = """
   .mr-pri-low  { background: rgba(127,127,127,.14); color: #6b7280; border-color: rgba(127,127,127,.35); }
   .mr-card {
       border: 1px solid rgba(127,127,127,.28); border-radius: 8px;
-      padding: .85rem 1rem; margin: .5rem 0;
+      box-sizing: border-box; width: 100%; padding: .85rem 1rem; margin: .5rem 0;
   }
   .mr-card-head {
       display: flex; flex-wrap: wrap; gap: .4rem 1rem;
@@ -82,7 +83,7 @@ CSS = """
   .mr-check-see { display: block; opacity: .85; margin-top: .1rem; }
   .mr-check-then { display: block; font-size: .82rem; opacity: .72; margin-top: .1rem; }
   /* 후보 카드는 확인 카드에 딸린다. 들여쓰기와 점선으로 순서를 보인다. */
-  .mr-card-next { border-style: dashed; margin: .2rem 0 .9rem 1.4rem; }
+  .mr-card-next { border-style: dashed; margin: .5rem 0; }
   @media (prefers-color-scheme: dark) {
     .mr-badge { color: #fbbf24; }
     .mr-pri-high { color: #fca5a5; }
@@ -104,6 +105,21 @@ def note(text: str) -> None:
     st.markdown(f'<div class="mr-note">{text}</div>', unsafe_allow_html=True)
 
 
+def stepper(current: int) -> None:
+    labels = ("지역 진단", "가게 정보", "실행안 비교")
+    items = []
+    for index, label in enumerate(labels, 1):
+        state = "mr-step-active" if index == current else "mr-step-done" if index < current else ""
+        mark = "✓" if index < current else str(index)
+        items.append(f'<span class="mr-step {state}">{mark} {label}</span>')
+    st.markdown('<div class="mr-steps">' + ''.join(items) + '</div>', unsafe_allow_html=True)
+
+
+def context_bar(region: str, buz_name: str) -> None:
+    st.markdown(f'<div class="mr-context"><span>지역 · {region}</span>'
+                f'<span>업종 · {buz_name}</span></div>', unsafe_allow_html=True)
+
+
 def badge(text: str = BADGE_DEMO) -> str:
     return f'<span class="mr-badge">{text}</span>'
 
@@ -113,16 +129,10 @@ def tag(kind: str) -> str:
     return f'<span class="mr-tag">{kind}</span>'
 
 
-def todo(owner: str, what: str) -> None:
-    st.markdown(f'<div class="mr-todo"><b>{owner}</b> 담당 — {what}<br>2일차 작업 구역</div>',
-                unsafe_allow_html=True)
-
-
 def footer() -> None:
-    """모든 화면 맨 아래. 출처와 계절 요인 주석을 고정한다."""
+    """모든 화면 맨 아래에 데이터 출처만 표시한다."""
     st.divider()
-    note(f"{NOTE_SOURCE} · {NOTE_SEASON}")
-    st.caption("주민 1인당 환산은 하지 않는다. CCG_NM이 가맹점 소재지인지 고객 거주지인지 미확인.")
+    note(NOTE_SOURCE)
 
 
 # ---- 데이터 ----------------------------------------------------------------
@@ -146,7 +156,7 @@ def region_keys() -> list[str]:
 
 
 def selector() -> tuple[str, str, str]:
-    """지역·업종 선택. 화면 1·2가 같은 위젯을 쓴다.
+    """지역·업종 선택. 지역 진단과 가게 정보 단계가 같은 위젯을 쓴다.
 
     반환: (region_key, buz_code, buz_name)
     지역은 반드시 region_key('시도 시군구')다. 시군구명만 쓰면 중구가 6곳 합쳐진다.

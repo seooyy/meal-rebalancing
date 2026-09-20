@@ -1,4 +1,4 @@
-"""대안 추천 — C 소유.
+"""지역 진단 후보를 손익 조건으로 비교하는 추천 정책.
 
 기획서 6절의 2단계 추천이다.
 
@@ -45,7 +45,7 @@ def load_policy(path: str | Path = POLICY_PATH) -> dict:
         return _policy_cache[key]
 
     policy = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
-    for field in ("candidate_kinds", "ranking", "display"):
+    for field in ("candidate_kinds", "candidate_actions", "ranking", "display"):
         if not policy.get(field):
             raise ValueError(f"{path}에 {field}가 없습니다.")
 
@@ -55,6 +55,16 @@ def load_policy(path: str | Path = POLICY_PATH) -> dict:
         raise ValueError(
             f"recommend.yaml이 options.yaml에 없는 대안 구분을 가리킵니다: {unknown}"
         )
+    missing_actions = sorted(set(policy["candidate_kinds"]) - set(policy["candidate_actions"]))
+    if missing_actions:
+        raise ValueError(f"recommend.yaml에 실행안이 없는 후보: {missing_actions}")
+    for name, action in policy["candidate_actions"].items():
+        if action.get("base_option") not in {"discount", "redesign", "visibility", "ordering"}:
+            raise ValueError(f"{name}: base_option이 올바르지 않습니다")
+        if not all(action.get(field) for field in ("title", "action", "measure", "precheck")):
+            raise ValueError(f"{name}: 실행안 설명이 부족합니다")
+        if not isinstance(action.get("assumptions", {}), dict):
+            raise ValueError(f"{name}: assumptions는 항목 묶음이어야 합니다")
     _policy_cache[key] = policy
     return policy
 
@@ -102,6 +112,23 @@ def shortlist(dg: dict | None, policy: dict | None = None) -> dict:
     judge = dg.get("판정", {})
     notes = [f'진단 {judge.get("라벨", "")} (원인 {judge.get("원인", "")}) 기준입니다.']
     return {"state": "filtered", "kinds": kinds, "unknown": sorted(set(unknown)), "notes": notes}
+
+
+def action_specs(dg: dict | None, policy: dict | None = None) -> list[dict]:
+    """Turn screen-1 candidate wording into concrete, calculable action cards."""
+    policy = policy or load_policy()
+    if shortlist(dg, policy)["state"] != "filtered":
+        return []
+    specs, seen = [], set()
+    for card in dg.get("실행후보", []):
+        for candidate in card.get("후보", []):
+            if candidate in seen or candidate not in policy["candidate_actions"]:
+                continue
+            seen.add(candidate)
+            action = dict(policy["candidate_actions"][candidate])
+            specs.append({"id": f"candidate_{len(specs) + 1}", "candidate": candidate,
+                          "kind": policy["candidate_kinds"][candidate], **action})
+    return specs
 
 
 # ---- 2단계: 계산 결과 순위 ---------------------------------------------------
@@ -153,6 +180,10 @@ def rank(result: dict, kinds: dict | None = None, policy: dict | None = None) ->
         option = meta[row["alternative_id"]]
         row["kind"] = option["kind"]
         row["근거"] = (kinds or {}).get(row["kind"], [])
+        row["실행"] = option.get("action", "")
+        row["확인할 숫자"] = option.get("measure", "")
+        row["실행 전 확인"] = option.get("precheck", "")
+        row["기본 가정"] = option.get("assumptions", {})
         # 판매가격·식재료비를 건드리지 않는 대안은 건당 공헌이익이 그대로다.
         # 필요 증가율에 도입비용만 남아 구조적으로 상위에 오른다. 계산이 유리하다고
         # 읽히면 안 되므로 화면이 이 사실을 말해야 한다.
@@ -184,76 +215,81 @@ def rank(result: dict, kinds: dict | None = None, policy: dict | None = None) ->
 # ---- 화면 -------------------------------------------------------------------
 
 def render(result: dict | None, dg: dict | None) -> dict | None:
-    """화면 2의 계산 결과 아래에 추천을 그린다. 계산이 실패했으면 아무것도 그리지 않는다."""
+    """역할을 손익 비교로 한정한 결과 화면."""
     import streamlit as st
 
     if result is None:
         return None
-
     policy = load_policy()
-    display = policy["display"]
     picked = shortlist(dg, policy)
+    if picked["state"] == "empty":
+        st.info(policy["display"]["no_candidate"])
+        return {"ranked": [], "excluded": [], "rows": [], "tops": {}, "unstable": False}
+
     outcome = rank(result, picked["kinds"], policy)
-
-    st.subheader("대안 추천")
-
-    # --- 1단계 -----------------------------------------------------------
-    if picked["state"] == "filtered":
-        st.caption("1단계 · 지역 진단이 지목한 대안 구분만 남겼습니다.")
-        for kind, why in picked["kinds"].items():
-            st.caption(f"　{kind} ← {' / '.join(why)}")
-    elif picked["state"] == "empty":
-        st.info(display["no_candidate"])
-        for line in picked["notes"]:
-            st.caption(f"　{line}")
-        st.caption("계산 자체는 위 표에서 그대로 확인할 수 있습니다.")
-        return outcome
-    else:
-        st.warning(display["no_diagnosis"])
-        for line in picked["notes"]:
-            st.caption(f"　{line}")
-
-    if picked["unknown"]:
-        st.caption("연결되지 않은 후보 (config/recommend.yaml에 없음): "
-                   + ", ".join(picked["unknown"]))
-
-    # --- 2단계 -----------------------------------------------------------
     ranked = outcome["ranked"]
-    if not ranked:
-        st.info("남은 대안 중 달성 조건을 계산할 수 있는 것이 없습니다.")
-    else:
+    menus = {menu["id"]: menu for menu in result["store"]["menus"]}
+
+    if ranked:
         top = ranked[0]
-        label = "1순위" if picked["state"] == "filtered" else "계산상 가장 가벼움"
-        st.markdown(
-            f'**{label} — {top["alternative"]}** ({top["kind"]}) · '
-            f'필요 증가율 {top["increase_pct"]:+.1f}% · 원가 범위 {LEVEL_NAMES[outcome["level"]]}'
-        )
-        if top["가격변경없음"]:
-            st.caption("이 대안은 판매가격·식재료비를 바꾸지 않아 필요 증가율에 도입비용만 반영됩니다. "
-                       "건당 공헌이익이 그대로라 계산상 유리하게 나오며, 실제 효과는 고객 반응으로 확인해야 합니다.")
-        st.dataframe([{
-            "순위": r["순위"], "대안": r["alternative"], "구분": r["kind"],
-            "건당 공헌이익": r["unit_cm"], "필요 증가율 %": r["increase_pct"],
-            "기간 필요 판매량": r["required_volume"],
-            "판매량 미상 시 필요 지수": r["required_index"],
-            "총 도입비": r["setup_cost"], "추가 조리시간 분": r["extra_minutes"],
-            "진단 근거": " / ".join(r["근거"]) or "—",
-        } for r in ranked], hide_index=True)
+        extra = (None if top["required_daily_volume"] is None else
+                 top["required_daily_volume"] - menus[top["target_menu"]]["daily_volume"])
+        reason = (f"현재 판매량을 100으로 보면 {top['required_index']:,.0f}까지 늘어야 현재 이익을 유지할 수 있습니다."
+                  if extra is None and top["required_index"] is not None
+                  else "판매량을 입력하면 하루에 더 팔아야 하는 수량을 계산할 수 있습니다."
+                  if extra is None
+                  else f"현재 이익을 유지하려면 하루 약 {extra:,.1f}건을 더 팔아야 하며, 비교한 실행안 중 부담이 가장 작습니다.")
+        st.success(f'우선 검토 실행안 · {top["alternative"]}\n\n{reason}')
+    else:
+        st.info("현재 이익을 유지하는 조건을 계산할 수 있는 실행안이 없습니다.")
 
     if outcome["unstable"]:
-        st.warning(display["unstable"])
-        st.caption("원가별 1순위 — " + ", ".join(
-            f'{LEVEL_NAMES[lv]}: {next((r["alternative"] for r in outcome["rows"] if r["alternative_id"] == aid), "—")}'
-            for lv, aid in outcome["tops"].items() if aid))
+        st.warning("재료비에 따라 우선순위가 달라집니다. 실제 원가를 먼저 확인해 주세요.")
+    else:
+        st.caption("재료비를 낮음·기준·높음으로 바꿔도 첫 번째 실행안은 같습니다.")
 
+    st.markdown("**실행안별 핵심 결과**")
+    st.caption("공헌이익은 판매가격에서 재료비·포장비·수수료·변동 인건비를 뺀 금액이며 순이익과 다릅니다.")
+    st.dataframe([{
+        "순위": row["순위"],
+        "실행안": row["alternative"],
+        "더 팔아야 하는 비율(%)": None if row["increase_pct"] is None else round(row["increase_pct"], 1),
+        "하루에 더 팔아야 하는 수량": (None if row["required_daily_volume"] is None else round(
+            row["required_daily_volume"] - menus[row["target_menu"]]["daily_volume"], 1)),
+        "현재 판매량을 100으로 봤을 때": row["required_index"],
+    } for row in ranked], hide_index=True, width="stretch")
+    st.caption("이 순위는 현재 이익을 유지하기 위해 얼마나 더 팔아야 하는지를 비교한 결과이며 실제 판매 성과를 예측하지 않습니다.")
+
+    with st.expander("상세 계산값과 입력 조건 보기"):
+        st.dataframe([{
+            "실행안": row["alternative"], "현재 공헌이익": row["base_store_cm"],
+            "판매량이 같을 때 공헌이익": row["after_store_cm_after_setup"],
+            "차이": None if row["base_store_cm"] is None else row["after_store_cm_after_setup"] - row["base_store_cm"],
+        } for row in ranked], hide_index=True, width="stretch")
+        labels = {"price_delta": "판매가격 증감", "food_cost_delta": "재료비 증감",
+                  "application_rate": "적용 비율", "setup_cost": "초기 비용",
+                  "extra_minutes": "추가 시간", "extra_labor_cost": "추가 인건비"}
+        for row in ranked:
+            assumptions = row.get("기본 가정", {})
+            text = " · ".join(f"{labels.get(k, k)} {v}" for k, v in assumptions.items()) or "별도 변경값 없음"
+            st.caption(f'{row["alternative"]} · {text}')
+
+    assumptions = []
+    if any(menu.get("daily_volume") is None for menu in result["store"]["menus"]):
+        assumptions.append("판매량 미입력: 대상 메뉴 지수 100 기준이며 도입비·잠식·매장 합계는 제외")
+    for menu in result["store"]["menus"]:
+        if menu.get("public_price_ingredients"):
+            assumptions.append(f'{menu["name"]} 공개가격 적용: ' + ", ".join(menu["public_price_ingredients"]))
+        for label in menu.get("assumed_zero_fields", ()):
+            assumptions.append(f'{menu["name"]} {label} 미입력: 0원 가정')
+        if "가정값" in menu.get("tags", {}).values():
+            assumptions.append(f'{menu["name"]} 원가 모름: 기본 원가율 35%로 참고 계산')
+    st.markdown("**계산 전에 확인할 내용**")
+    if assumptions:
+        for line in dict.fromkeys(assumptions):
+            st.caption("- " + line)
+    else:
+        st.caption("- 미입력으로 0원 처리한 항목이 없습니다.")
     for row in outcome["excluded"]:
-        st.caption(f'제외 · {row["alternative"]} — {row["제외사유"]}')
-
-    if picked["state"] == "filtered":
-        skipped = [o["name"] for o in result["options"] if o["kind"] not in picked["kinds"]]
-        if skipped:
-            st.caption("진단과 연결되지 않아 추천에서 제외: " + ", ".join(skipped)
-                       + " — 계산 자체는 위 표에서 확인할 수 있습니다.")
-
-    st.caption(display["notice"] + ". 실제 도입 여부는 고객 반응과 주방 수용량을 함께 확인해 결정합니다.")
+        st.caption(f'비교 제외 · {row["alternative"]}: {row["제외사유"]}')
     return outcome

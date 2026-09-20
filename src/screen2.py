@@ -1,4 +1,4 @@
-"""B-owned Streamlit screen. C imports render_screen2; calculation stays UI independent."""
+"""손익 계산 API와 독립 실행형 입력 화면."""
 from __future__ import annotations
 
 import copy
@@ -282,6 +282,59 @@ def render_screen2(*, buz=None, context=None, key="screen2", daily_rows=None):
     }, ensure_ascii=False, allow_nan=False, indent=2), file_name="simulator_result.json",
                        mime="application/json", key=prefix + "download")
     return result
+
+
+
+def evaluate_profile_candidates(profile, target_menu_id: str, *, action_specs=None, context=None):
+    """Calculate concrete screen-1 actions from a saved store profile.
+
+    The caller filters these rows using the candidates that survived screen 1.
+    All alternatives deliberately share one target menu and the same store facts,
+    so the resulting order compares alternatives rather than demo menus.
+    """
+    from src.store_profile import simulator_menus
+
+    menus = simulator_menus(profile)
+    if target_menu_id not in {menu.id for menu in menus}:
+        raise ValueError("대상 메뉴를 선택하세요")
+    _, _, configured_options = config_for(profile.buz)
+    templates = {option["id"]: option for option in configured_options}
+    if action_specs:
+        options = []
+        for action in action_specs:
+            option = copy.deepcopy(templates[action["base_option"]])
+            option.update({"id": action["id"], "name": action["title"], "kind": action["kind"],
+                           "candidate": action["candidate"], "action": action["action"],
+                           "measure": action["measure"], "precheck": action["precheck"]})
+            option.update(action.get("assumptions", {}))
+            option["assumptions"] = dict(action.get("assumptions", {}))
+            options.append(option)
+    else:
+        options = copy.deepcopy(configured_options)
+    for option in options:
+        option["target_menu"] = target_menu_id
+        option["cannibalization"] = {}
+    store = {
+        "menus": [{
+            "id": menu.id, "name": menu.name, "price": menu.price,
+            "daily_volume": menu.daily_volume, "packaging": menu.packaging,
+            "fee_rate": menu.fee_rate, "variable_labor": menu.variable_labor,
+            "food_cost": dict(menu.food_cost), "tags": dict(menu.tags),
+            "public_price_ingredients": [ingredient.name for source in profile.menus
+                                           if source.id == menu.id for ingredient in source.ingredients
+                                           if ingredient.public_price_id],
+            "assumed_zero_fields": list(next(
+                (source.assumed_zero_fields for source in profile.menus if source.id == menu.id), ())),
+        } for menu in menus],
+        "operating_days": profile.operating_days,
+        "period_weeks": 4,
+    }
+    rows = [row for option in options for row in simulate(
+        menus, alternative_from_dict(option), operating_days=profile.operating_days,
+        period_weeks=4, context=context,
+    )]
+    return {"store": store, "options": options, "active": options[0],
+            "results": rows, "prices": None, "context": dict(context or {})}
 
 
 if __name__ == "__main__":

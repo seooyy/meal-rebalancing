@@ -1,0 +1,1934 @@
+{
+  "start": "2026-01-01",
+  "end": "2026-06-30",
+  "collected_at": "2026-09-20T11:55:43.048200+00:00",
+  "failures": [],
+  "quality": [
+    {
+      "ingredient_id": "rice",
+      "expected_calendar_days": 181,
+      "observed_days": 120,
+      "missing_rate": 0.3370165745856354
+    },
+    {
+      "ingredient_id": "cabbage",
+      "expected_calendar_days": 181,
+      "observed_days": 0,
+      "missing_rate": 1.0
+    },
+    {
+      "ingredient_id": "radish",
+      "expected_calendar_days": 181,
+      "observed_days": 110,
+      "missing_rate": 0.39226519337016574
+    },
+    {
+      "ingredient_id": "onion",
+      "expected_calendar_days": 181,
+      "observed_days": 120,
+      "missing_rate": 0.3370165745856354
+    },
+    {
+      "ingredient_id": "green_onion",
+      "expected_calendar_days": 181,
+      "observed_days": 120,
+      "missing_rate": 0.3370165745856354
+    },
+    {
+      "ingredient_id": "garlic",
+      "expected_calendar_days": 181,
+      "observed_days": 0,
+      "missing_rate": 1.0
+    },
+    {
+      "ingredient_id": "pork",
+      "expected_calendar_days": 181,
+      "observed_days": 0,
+      "missing_rate": 1.0
+    },
+    {
+      "ingredient_id": "egg",
+      "expected_calendar_days": 181,
+      "observed_days": 0,
+      "missing_rate": 1.0
+    },
+    {
+      "ingredient_id": "tomato",
+      "expected_calendar_days": 181,
+      "observed_days": 120,
+      "missing_rate": 0.3370165745856354
+    }
+  ],
+  "rejected": [
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    },
+    {
+      "ingredient_id": "cabbage",
+      "reason": "unit_mismatch"
+    }
+  ],
+  "duplicates": 0,
+  "note": "달력일 기준 결측률에는 휴장일 포함; 결측을 0원으로 채우지 않음"
+}
