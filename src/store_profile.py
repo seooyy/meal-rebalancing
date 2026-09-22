@@ -6,12 +6,39 @@ from typing import Mapping
 
 
 PRICE_SOURCES = {
-    "unknown": "원가 모름",
-    "rate": "대략 원가율",
-    "recipe": "레시피·매입단가",
-    # 이전 저장 데이터 호환. 새 화면에서는 recipe 하나로만 받는다.
-    "actual": "레시피·매입단가",
+    "rate": "전체 원가율 입력",
+    "recipe": "재료별 원가 입력",
 }
+_LEGACY_PRICE_SOURCES = {"unknown": "rate", "actual": "recipe"}
+
+
+def normalize_price_source(value: object) -> str:
+    """Map legacy source names to the two supported input methods."""
+    source = _LEGACY_PRICE_SOURCES.get(str(value), str(value))
+    if source not in PRICE_SOURCES:
+        raise ValueError("원가 정보 수준을 선택하세요.")
+    return source
+
+# 레시피 사용량과 매입단가에 공통으로 쓰는 표준 단위다. 화면과 검증이
+# 이 목록을 함께 사용해 같은 단위가 여러 표기로 저장되는 일을 막는다.
+INGREDIENT_UNITS = ("g", "kg", "mL", "L", "개")
+_UNIT_ALIASES = {
+    "g": "g", "그램": "g",
+    "kg": "kg", "킬로그램": "kg", "키로그램": "kg",
+    "ml": "mL", "밀리리터": "mL",
+    "l": "L", "리터": "L",
+    "개": "개", "ea": "개",
+}
+
+
+def normalize_ingredient_unit(value: object) -> str:
+    """Return a canonical ingredient unit or raise a user-facing error."""
+    raw = str(value or "").strip()
+    canonical = _UNIT_ALIASES.get(raw.lower())
+    if canonical is None:
+        choices = ", ".join(INGREDIENT_UNITS)
+        raise ValueError(f"재료 단위는 {choices} 중에서 선택하세요.")
+    return canonical
 
 
 @dataclass(frozen=True)
@@ -57,7 +84,7 @@ class StoreMenu:
     name: str
     price: float
     daily_volume: float | None
-    cost_source: str = "unknown"
+    cost_source: str = "rate"
     food_cost_rate: float | None = None
     ingredients: tuple[RecipeIngredient, ...] = ()
     packaging: float = 0
@@ -100,7 +127,6 @@ class StoreProfile:
     experiment_budget: float
     extra_minutes_capacity: float
     menus: tuple[StoreMenu, ...] = ()
-    sales_volume_basis: str = "estimate"
 
 def _number(value, name, *, minimum=0, maximum=None, allow_blank=False):
     if allow_blank and value in (None, ""):
@@ -119,11 +145,12 @@ def profile_from_form(form: Mapping) -> StoreProfile:
     buz = str(form.get("buz", "8001"))
     if buz not in {"8001", "8006"}:
         raise ValueError("업종을 선택하세요.")
-    source = str(form.get("price_source", "unknown"))
-    if source not in PRICE_SOURCES:
-        raise ValueError("원가 정보 수준을 선택하세요.")
-    rate = _number(form.get("food_cost_rate"), "원가율", minimum=0, maximum=1,
-                   allow_blank=source in {"unknown", "recipe", "actual"})
+    raw_source = str(form.get("price_source", "rate"))
+    source = normalize_price_source(raw_source)
+    raw_rate = form.get("food_cost_rate")
+    if raw_source == "unknown" and raw_rate in (None, ""):
+        raw_rate = .35
+    rate = _number(raw_rate, "원가율", minimum=0, maximum=1, allow_blank=source == "recipe")
     if source == "rate" and rate is None:
         raise ValueError("대략적인 원가율을 입력하세요.")
     name = str(form.get("menu_name", "대표 메뉴")).strip() or "대표 메뉴"
@@ -146,19 +173,20 @@ def profile_from_form(form: Mapping) -> StoreProfile:
         price_source=source, food_cost_rate=rate,
         experiment_budget=_number(form.get("experiment_budget", 0), "실험 예산", minimum=0),
         extra_minutes_capacity=_number(form.get("extra_minutes_capacity", 0), "추가 조리 여력", minimum=0), menus=menus,
-        sales_volume_basis=(str(form.get("sales_volume_basis", "estimate"))
-                            if str(form.get("sales_volume_basis", "estimate")) in {"pos", "estimate"}
-                            else "estimate"),
     )
 
 
-def _menu_from_data(data: Mapping, index: int, *, default_source="unknown", default_rate=None) -> StoreMenu:
+def _menu_from_data(data: Mapping, index: int, *, default_source="rate", default_rate=None) -> StoreMenu:
     name = str(data.get("name", "")).strip()
-    source = str(data.get("cost_source", default_source))
-    if source not in PRICE_SOURCES:
-        raise ValueError(f"{name} 원가 입력 방식을 선택하세요.")
-    rate = _number(data.get("food_cost_rate", default_rate), f"{name} 원가율", minimum=0, maximum=1,
-                   allow_blank=source != "rate")
+    raw_source = str(data.get("cost_source", default_source))
+    try:
+        source = normalize_price_source(raw_source)
+    except ValueError:
+        raise ValueError(f"{name} 원가 입력 방식을 선택하세요.") from None
+    raw_rate = data.get("food_cost_rate", default_rate)
+    if raw_source == "unknown" and raw_rate in (None, ""):
+        raw_rate = .35
+    rate = _number(raw_rate, f"{name} 원가율", minimum=0, maximum=1, allow_blank=source != "rate")
     if source == "rate" and rate is None:
         raise ValueError(f"{name}의 대략 원가율을 입력하세요.")
     ingredients = []
@@ -185,11 +213,11 @@ def _menu_from_data(data: Mapping, index: int, *, default_source="unknown", defa
         ingredients.append(RecipeIngredient(
             name=ingredient_name,
             quantity=_number(raw.get("quantity"), f"{name} {ingredient_name} 사용량", minimum=0),
-            unit=(public["unit"] if public else str(raw.get("unit", "단위")).strip() or "단위"),
+            unit=normalize_ingredient_unit(public["unit"] if public else raw.get("unit")),
             purchase_price=purchase, purchase_price_low=purchase_low, purchase_price_high=purchase_high,
             public_price_id=public_id,
         ))
-    if source in {"recipe", "actual"} and not ingredients:
+    if source == "recipe" and not ingredients:
         raise ValueError(f"{name}은(는) 레시피 원가를 선택했으므로 재료·사용량·매입단가를 입력하세요.")
     optional_fields = {
         "packaging": ("포장비", 0),

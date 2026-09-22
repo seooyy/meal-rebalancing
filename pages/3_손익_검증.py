@@ -85,8 +85,6 @@ else:
             st.warning("입력한 예산을 넘는 실행안: " + ", ".join(display_text(name) for name in over_budget))
         if profile.extra_minutes_capacity > 0 and over_capacity:
             st.warning("입력한 추가 작업 시간을 넘는 실행안: " + ", ".join(display_text(name) for name in over_capacity))
-        if profile.sales_volume_basis == "estimate":
-            st.warning("판매량을 기억에 따라 입력했으므로 공헌이익과 추가 판매량은 참고용입니다. 가능하면 최근 4주 POS나 주문내역으로 다시 입력해 주세요.")
         st.page_link("pages/2_가게_정보.py", label="가게 정보 수정하기 →")
 
 footer()
