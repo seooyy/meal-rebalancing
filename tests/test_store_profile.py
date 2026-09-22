@@ -1,6 +1,7 @@
 import pytest
 
-from src.store_profile import profile_from_form, simulator_menus
+from src.store_profile import (normalize_ingredient_unit, normalize_price_source,
+                               profile_from_form, simulator_menus)
 from src.screen2 import evaluate_profile_candidates
 
 
@@ -74,6 +75,21 @@ def test_public_price_mode_requires_an_explicit_item():
         ]))
 
 
+@pytest.mark.parametrize(("raw", "canonical"), [
+    ("g", "g"), ("그램", "g"), ("KG", "kg"), ("ml", "mL"), ("리터", "L"), ("EA", "개"),
+])
+def test_ingredient_units_are_normalized(raw, canonical):
+    assert normalize_ingredient_unit(raw) == canonical
+
+
+def test_recipe_rejects_a_nonstandard_unit():
+    with pytest.raises(ValueError, match="재료 단위는"):
+        profile_from_form(form(menus=[
+            {"id": "a", "name": "A", "price": 10000, "cost_source": "recipe",
+             "ingredients": [{"name": "쌀", "quantity": 1, "unit": "스푸", "purchase_price": 10}]},
+        ]))
+
+
 def test_each_menu_can_use_its_own_cost_source():
     profile = profile_from_form(form(price_source="unknown", food_cost_rate="", menus=[
         {"id": "a", "name": "A", "price": 10000, "daily_volume": 10,
@@ -83,6 +99,11 @@ def test_each_menu_can_use_its_own_cost_source():
     ]))
     menus = simulator_menus(profile)
     assert [menu.food_cost["base"] for menu in menus] == [4000, 2800]
+
+
+@pytest.mark.parametrize(("legacy", "canonical"), [("unknown", "rate"), ("actual", "recipe")])
+def test_legacy_price_sources_are_normalized(legacy, canonical):
+    assert normalize_price_source(legacy) == canonical
 
 
 def test_profile_candidate_calculation_uses_all_saved_menus_and_one_target():
